@@ -1,26 +1,29 @@
 package TaskPackage;
 
 public class SubTask extends Task {
-    EpicTask epicTask;
+    private EpicTask epicTask;
 
-    public SubTask(String taskName, String tastDescription, int taskId, EpicTask epicTask) {
-        super(taskName, tastDescription, taskId);
+    public SubTask(String taskName, String tastDescription, int taskId, EpicTask epicTask, TaskStatus tastStatus) {
+        super(taskName, tastDescription, taskId, tastStatus);
         this.epicTask = epicTask;
-        //epicTask.addSubTask(this);
-    }
-
-    public void addTaskForEpicList () {
-        System.out.println(this.toString());
         epicTask.addSubTask(this);
     }
 
+    public SubTask(SubTask task, TaskStatus tastStatus) {
+        super(task, tastStatus);
+        this.epicTask = task.getEpicTask();
+    }
 
     @Override
     public String toString() {
-        return "SubTask{" +
-                "taskName='" + taskName + '\'' +
-                ", tastDescription='" + tastDescription + '\'' +
-                ", taskId=" + taskId +
-                '}';
+        return "SubTask '" + epicTask.taskName + "'" + "{"
+                + "taskName='" + taskName + '\'' +
+                ", tastDescription='" + tastDescription + '\''
+                + ", taskStatus='" + taskStatus + '\''
+                + '}';
+    }
+
+    public EpicTask getEpicTask() {
+        return epicTask;
     }
 }

@@ -1,23 +1,84 @@
 import TaskPackage.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Manager {
     static int idNumeration = 1;
+    private Map<Integer , Task> simpleTaskMap;
+    private Map<Integer, EpicTask> epicTaskMap;
+    private Map<Integer, SubTask> subTaskMap;
 
-    public static void main(String[] args) {
-        Task task = new Task("Убрать за котом",
-                "Необходимо убрать лоток за котом, помыть его и насыпать новго наполнителя", setIdNumeration());
-        EpicTask cleanCitchen = new EpicTask("Убраться на кухне",
-                "Необходимо провести полную уборку кухни", setIdNumeration());
-        SubTask cleanDishes = new SubTask("Помыть посуду", "Посуда должна быть чистой",
-                setIdNumeration(), cleanCitchen);
-        cleanDishes.addTaskForEpicList();
-        SubTask cleanFloor = new SubTask("Помыть пол на кухне",
-                "Необходимо помыть пол чтобы он блестел", setIdNumeration(), cleanCitchen);
-        cleanFloor.addTaskForEpicList();
-        System.out.println(cleanCitchen.subTaskList);
+    public Manager () {
+        simpleTaskMap = new HashMap<>();
+        epicTaskMap = new HashMap<>();
+        subTaskMap = new HashMap<>();
+    }
+
+    public void addTaskToSimpleTaskMap (Task newTask) {
+        simpleTaskMap.put(newTask.getTaskId(), newTask);
+        System.out.println("Задача " + newTask.getTaskName() + " добавлена, id = " + newTask.getTaskId());
+    }
+
+    public void addTaskToEpicTaskMap (EpicTask newTask) {
+        epicTaskMap.put(newTask.getTaskId(), newTask);
+        System.out.println("Эпическая задача " + newTask.getTaskName() + " добавлена, id = " + newTask.getTaskId());
+    }
+
+    public void addTaskToSubTaskMap (SubTask newTask) {
+        subTaskMap.put(newTask.getTaskId(), newTask);
+        System.out.println("Подзадача " + newTask.getTaskName() + " добавлена, id = " + newTask.getTaskId());
     }
 
     public static int setIdNumeration() {
         return idNumeration++;
     }
+
+    public Map<Integer, Task> getSimpleTaskMap() {
+        return simpleTaskMap;
+    }
+
+    public Map<Integer, EpicTask> getEpicTaskMap() {
+        return epicTaskMap;
+    }
+
+    public Map<Integer, SubTask> getSubTaskMap() {
+        return subTaskMap;
+    }
+
+    public void clearToDoList () {
+        simpleTaskMap.clear();
+        epicTaskMap.clear();
+        subTaskMap.clear();
+    }
+
+    public Object showTask (int id) {
+        for (int taskId: simpleTaskMap.keySet()) {
+            if (taskId == id) {
+                return simpleTaskMap.get(id);
+            }
+        }
+        for (int taskId: epicTaskMap.keySet()) {
+            if (taskId == id) {
+                return epicTaskMap.get(id);
+            }
+        }
+        for (int taskId : subTaskMap.keySet()) {
+            if (taskId == id) {
+                return subTaskMap.get(id);
+            }
+        }
+        return "Такой задачи нет";
+    }
+
+  /*  public void updateStatus (SubTask subTask) {
+        toDoList.replace(subTask.getTaskId(), subTask);
+    }
+
+    public void checkEpicTask () {
+        for (int keyNumber : toDoList.keySet()) {
+            Task localTask = (Task) toDoList.get(keyNumber);
+
+        }
+    }*/
 }
