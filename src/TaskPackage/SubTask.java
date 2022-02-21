@@ -3,7 +3,7 @@ package TaskPackage;
 public class SubTask extends Task {
     private EpicTask epicTask;
 
-    public SubTask(String taskName, String tastDescription, int taskId, EpicTask epicTask, TaskStatus tastStatus) {
+    public SubTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus, EpicTask epicTask) {
         super(taskName, tastDescription, taskId, tastStatus);
         this.epicTask = epicTask;
         epicTask.addSubTask(this);

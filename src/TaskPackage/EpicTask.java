@@ -11,12 +11,16 @@ public class EpicTask extends Task {
         subTaskList = new HashMap <>();
     }
 
-    public EpicTask(Task task, TaskStatus tastStatus) {
+    public EpicTask(EpicTask task, TaskStatus tastStatus) {
         super(task, tastStatus);
     }
 
     public void addSubTask (SubTask subTask) {
         subTaskList.put(subTask.getTaskId() , subTask);
+    }
+
+    public Map<Integer, SubTask> getSubTaskList() {
+        return subTaskList;
     }
 
     @Override
