@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EpicTask extends Task {
-    public Map<Integer , SubTask> subTaskList;
+    private Map<Integer , SubTask> subTaskList;
 
     public EpicTask (String taskName, String tastDescription, int taskId, TaskStatus tastStatus) {
         super(taskName, tastDescription, taskId, tastStatus);
@@ -13,9 +13,11 @@ public class EpicTask extends Task {
 
     public EpicTask(EpicTask task, TaskStatus tastStatus) {
         super(task, tastStatus);
+        this.subTaskList = task.getSubTaskList();
     }
 
-    public void addSubTask (SubTask subTask) {
+    /** Добавляет субклассы в локальное хранилище эпика */
+    protected void addSubTask (SubTask subTask) {
         subTaskList.put(subTask.getTaskId() , subTask);
     }
 
@@ -30,10 +32,5 @@ public class EpicTask extends Task {
                 ", tastDescription='" + tastDescription + '\'' +
                 ", taskStatus=" + taskStatus +
                 '}';
-    }
-
-    @Override
-    public int hashCode() {
-        return subTaskList != null ? subTaskList.hashCode() : 0;
     }
 }

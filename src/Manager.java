@@ -15,19 +15,32 @@ public class Manager {
         subTaskMap = new HashMap<>();
     }
 
-    public void addTaskToSimpleTaskMap (Task newTask) {
+    /** Добавляет задачу соответсвующего типа в хранилище соответсвующего типа */
+    public void addTask(Object object) {
+        if (object.getClass() == Task.class) {
+            addTaskToSimpleTaskMap((Task) object);
+        } else if (object.getClass() == EpicTask.class) {
+            addTaskToEpicTaskMap((EpicTask) object);
+        } else if (object.getClass() == SubTask.class) {
+            addTaskToSubTaskMap((SubTask) object);
+        } else {
+            System.out.println("Хранение таких задач не предусмотрено");
+        }
+    }
+
+    private void addTaskToSimpleTaskMap(Task newTask) {
         simpleTaskMap.put(newTask.getTaskId(), newTask);
-        System.out.println("Задача " + newTask.getTaskName() + " добавлена, id = " + newTask.getTaskId());
+        System.out.println("Задача '" + newTask.getTaskName() + "' добавлена, id = " + newTask.getTaskId());
     }
 
-    public void addTaskToEpicTaskMap (EpicTask newTask) {
+    private void addTaskToEpicTaskMap(EpicTask newTask) {
         epicTaskMap.put(newTask.getTaskId(), newTask);
-        System.out.println("Эпическая задача " + newTask.getTaskName() + " добавлена, id = " + newTask.getTaskId());
+        System.out.println("Эпическая задача '" + newTask.getTaskName() + "' добавлена, id = " + newTask.getTaskId());
     }
 
-    public void addTaskToSubTaskMap (SubTask newTask) {
+    private void addTaskToSubTaskMap(SubTask newTask) {
         subTaskMap.put(newTask.getTaskId(), newTask);
-        System.out.println("Подзадача " + newTask.getTaskName() + " добавлена, id = " + newTask.getTaskId());
+        System.out.println("Подзадача '" + newTask.getTaskName() + "' добавлена, id = " + newTask.getTaskId());
     }
 
     public static int setIdNumeration() {
@@ -54,7 +67,8 @@ public class Manager {
         epicTaskMap.clear();
         subTaskMap.clear();
     }
-    
+
+    /** Ищет id задачи во всех типах хранилища по ее названию */
     public int findTaskId (String taskName) {
         for (int taskId: simpleTaskMap.keySet()) {
             if (simpleTaskMap.get(taskId).getTaskName().equals(taskName)) {
@@ -73,6 +87,8 @@ public class Manager {
         }
         throw new RuntimeException();
     }
+
+    /** Возвращает задачу соответсвующего типа по id */
 
     public Task getSimpleTask(int id) {
         for (int taskId: simpleTaskMap.keySet()) {
@@ -101,50 +117,121 @@ public class Manager {
         throw new RuntimeException();
     }
 
-
-   public void updateSimpleTaskStatus (Task simpleTask) {
-        simpleTaskMap.replace(simpleTask.getTaskId(),simpleTask);
-       System.out.println("Статус задачи " + simpleTask.getTaskName() + " обновлен");
+    /** Обновляет статус задачи соответствующего типа.
+     * В качестве параметра принимается объект с уже обновленным статусом */
+    public void updateTaskStatus (Object object) {
+        if (object.getClass() == Task.class) {
+            updateSimpleTaskStatus((Task) object);
+        } else if (object.getClass() == EpicTask.class) {
+            updateEpicTaskStatus((EpicTask) object);
+        } else if (object.getClass() == SubTask.class) {
+            updateSubTaskStatus((SubTask) object);
+        } else {
+            System.out.println("Такого класса задач нет");
+        }
     }
 
-    public void updateEpicTaskStatus (EpicTask epicTask) {
+    private void updateSimpleTaskStatus (Task simpleTask) {
+       simpleTaskMap.replace(simpleTask.getTaskId(),simpleTask);
+       System.out.println("Статус задачи " + simpleTask.getTaskName() + " обновлен");
+   }
 
+   private void updateEpicTaskStatus (EpicTask epicTask) {
+       boolean newStatus = false;
+       boolean progrStatus = false;
+       boolean doneStatus = false;
+
+       for (SubTask localSubTask : epicTask.getSubTaskList().values()) {
+           if ((localSubTask.getTaskStatus() == TaskStatus.IN_PROGRESS)) {
+               progrStatus = true;
+           }
+       }
+       if (epicTask.getTaskStatus() == TaskStatus.IN_PROGRESS && progrStatus) {
+
+
+
+
+
+           if (epicTask.getTaskStatus() == TaskStatus.IN_PROGRESS && localSubTask.getTaskStatus() == TaskStatus.NEW) {
+               System.out.println("Сначала обновите статус подзадачи");
+               return;
+           } else if (localSubTask.getTaskStatus() == TaskStatus.IN_PROGRESS) {
+
+           } else if (localSubTask.getTaskStatus() == TaskStatus.DONE) {
+               simpleTaskMap.replace(epicTask.getTaskId(),epicTask);
+               updateSubTaskStatus(new SubTask(localSubTask, TaskStatus.DONE));
+           }
+       }
+       System.out.println("Статус задачи " + epicTask.getTaskName() + " обновлен");
+
+        /*
         if (epicTask.getTaskStatus()==TaskStatus.IN_PROGRESS) {
             System.out.println("Обновите статус подзадачи");
             return;
-        } else {
+       } else {
             simpleTaskMap.replace(epicTask.getTaskId(),epicTask);
             for (SubTask localSubTask : epicTask.getSubTaskList().values()) {
                 updateSubTaskStatus(new SubTask(localSubTask, TaskStatus.DONE));
             }
             System.out.println("Статус задачи " + epicTask.getTaskName() + " обновлен");
-        }
+       }*/
+   }
 
-    }
+   private void updateSubTaskStatus (SubTask subTask) {
+       boolean doneEpicTask = true;
+       subTaskMap.replace(subTask.getTaskId(),subTask);
+       subTask.getEpicTask().getSubTaskList().replace(subTask.getTaskId(),subTask);
+       //System.out.println(subTask.getEpicTask().getSubTaskList());
+       System.out.println("Статус задачи " + subTask.getTaskName() + " обновлен");
+       for (SubTask localSubTask:subTask.getEpicTask().getSubTaskList().values()) {
+           if (localSubTask.getTaskStatus()==TaskStatus.IN_PROGRESS) {
+               updateEpicTaskStatus(new EpicTask(subTask.getEpicTask(), TaskStatus.IN_PROGRESS));
+               return;
+           }
+           if (localSubTask.getTaskStatus()!=TaskStatus.DONE) {
+               doneEpicTask = false;
+           }
+       }
+       if (doneEpicTask) {
+           updateEpicTaskStatus(new EpicTask(subTask.getEpicTask(), TaskStatus.DONE));
+       }
+   }
 
-    public void updateSubTaskStatus (SubTask subTask) {
-        boolean doneEpicTask = true;
-        simpleTaskMap.replace(subTask.getTaskId(),subTask);
-        System.out.println("Статус задачи " + subTask.getTaskName() + " обновлен");
-        for (SubTask localSubTask:subTask.getEpicTask().getSubTaskList().values()) {
-            if (localSubTask.getTaskStatus()==TaskStatus.IN_PROGRESS) {
-                updateEpicTaskStatus(new EpicTask(subTask.getEpicTask(), TaskStatus.IN_PROGRESS));
-                return;
-            }
-            if (localSubTask.getTaskStatus()!=TaskStatus.DONE) {
-                doneEpicTask = false;
-            }
-        }
-        if (doneEpicTask) {
-            updateEpicTaskStatus(new EpicTask(subTask.getEpicTask(), TaskStatus.DONE));
-        }
+   /** Удаляет задачу соответсвующего типа */
+   public void deteteTask (int id) {
+       if (simpleTaskMap.containsKey(id)) {
+           deleteSimpleTask(id);
+       } else if (epicTaskMap.containsKey(id)) {
+           deleteEpicTask(id);
+       } else if (subTaskMap.containsKey(id)) {
+           deleteSubTask(id);
+       } else {
+           System.out.println("Задача не найдена");
+       }
+   }
 
-    }
-/*
-    public void checkEpicTask () {
-        for (int keyNumber : toDoList.keySet()) {
-            Task localTask = (Task) toDoList.get(keyNumber);
+   private void deleteSubTask(int id) {
+       int epicTaskId = subTaskMap.get(id).getEpicTask().getTaskId();
+       subTaskMap.get(id).getEpicTask().getSubTaskList().remove(id);
+       subTaskMap.remove(id);
+       if (epicTaskMap.get(epicTaskId).getSubTaskList().isEmpty()) {
+           deleteEpicTask(id);
+       }
 
-        }
-    }*/
+   }
+
+   private void deleteSimpleTask(int id) {
+       simpleTaskMap.remove(id);
+   }
+
+   private void deleteEpicTask(int id) {
+       if (!epicTaskMap.get(id).getSubTaskList().isEmpty()) {
+           for (SubTask localSubTask : epicTaskMap.get(id).getSubTaskList().values()) {
+               if (localSubTask.getEpicTask().getTaskId()==id) {
+                   subTaskMap.remove(localSubTask.getTaskId());
+               }
+           }
+       }
+       epicTaskMap.remove(id);
+   }
 }

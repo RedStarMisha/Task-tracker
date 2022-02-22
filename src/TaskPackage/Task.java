@@ -1,10 +1,10 @@
 package TaskPackage;
 
 public class Task {
-    public String taskName;
-    public String tastDescription;
-    public int taskId;
-    public TaskStatus taskStatus;
+    protected String taskName;
+    protected String tastDescription;
+    protected int taskId;
+    protected TaskStatus taskStatus;
 
     public Task(String taskName, String tastDescription, int taskId, TaskStatus tastStatus) {
         this.taskName = taskName;
@@ -43,20 +43,5 @@ public class Task {
                 ", tastDescription='" + tastDescription + '\'' +
                 ", taskStatus=" + taskStatus +
                 '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Task task = (Task) o;
-
-        return taskName.equals(task.taskName);
-    }
-
-    @Override
-    public int hashCode() {
-        return taskName.hashCode();
     }
 }
