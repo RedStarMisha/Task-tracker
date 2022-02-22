@@ -5,18 +5,38 @@ import TaskPackage.TaskStatus;
 
 public class Main {
     static Manager manager = new Manager();
+
     public static void main(String[] args) {
     createMapsForToDo();
         System.out.println(manager.getSimpleTaskMap());
         System.out.println(manager.getEpicTaskMap());
         System.out.println(manager.getSubTaskMap());
-        manager.updateTaskStatus(new Task(manager.getSimpleTask(manager.findTaskId("Убрать за котом")) , TaskStatus.IN_PROGRESS));
-        manager.updateTaskStatus(new SubTask(manager.getSubTask(manager.findTaskId("Убрать постель")) , TaskStatus.IN_PROGRESS));
-        System.out.println("После обновления статусов");
+        manager.updateTaskStatus(new Task(manager.getSimpleTask(manager.findTaskId("Убрать за котом")),
+                TaskStatus.IN_PROGRESS));
+        manager.updateTaskStatus(new SubTask(manager.getSubTask(manager.findTaskId("Помыть посуду")),
+                TaskStatus.IN_PROGRESS));
+        System.out.println("После обновления статусов In progress");
         System.out.println(manager.getSimpleTaskMap());
         System.out.println(manager.getEpicTaskMap());
         System.out.println(manager.getSubTaskMap());
-
+        manager.updateTaskStatus(new SubTask(manager.getSubTask(manager.findTaskId("Помыть посуду")),
+                TaskStatus.DONE));
+        manager.updateTaskStatus(new SubTask(manager.getSubTask(manager.findTaskId("Убрать со стола")),
+                TaskStatus.DONE));
+        manager.updateTaskStatus(new Task(manager.getSimpleTask(manager.findTaskId("Убрать за котом")),
+                TaskStatus.DONE));
+        manager.updateTaskStatus(new SubTask(manager.getSubTask(manager.findTaskId("Убрать постель")),
+                TaskStatus.DONE));
+        System.out.println("После обновления статусов DONE");
+        System.out.println(manager.getSimpleTaskMap());
+        System.out.println(manager.getEpicTaskMap());
+        System.out.println(manager.getSubTaskMap());
+        System.out.println("После удаления задач");
+        manager.deteteTask(manager.findTaskId("Убрать постель"));
+        manager.deteteTask(manager.findTaskId("Убрать за котом"));
+        System.out.println(manager.getSimpleTaskMap());
+        System.out.println(manager.getEpicTaskMap());
+        System.out.println(manager.getSubTaskMap());
     }
 
     private static void createMapsForToDo () {

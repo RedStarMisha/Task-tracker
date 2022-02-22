@@ -29,7 +29,6 @@ public class EpicTask extends Task {
     public String toString() {
         return "EpicTask{" +
                 "taskName='" + taskName + '\'' +
-                ", tastDescription='" + tastDescription + '\'' +
                 ", taskStatus=" + taskStatus +
                 '}';
     }

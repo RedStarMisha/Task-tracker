@@ -40,7 +40,6 @@ public class Task {
     public String toString() {
         return "Task{" +
                 "taskName='" + taskName + '\'' +
-                ", tastDescription='" + tastDescription + '\'' +
                 ", taskStatus=" + taskStatus +
                 '}';
     }
