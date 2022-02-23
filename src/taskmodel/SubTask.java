@@ -1,4 +1,4 @@
-package TaskPackage;
+package taskmodel;
 
 public class SubTask extends Task {
     private EpicTask epicTask;

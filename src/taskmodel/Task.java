@@ -1,4 +1,6 @@
-package TaskPackage;
+package taskmodel;
+
+import java.util.Objects;
 
 public class Task {
     protected String taskName;
@@ -34,6 +36,19 @@ public class Task {
 
     public TaskStatus getTaskStatus() {
         return taskStatus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return taskId == task.taskId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(taskId);
     }
 
     @Override

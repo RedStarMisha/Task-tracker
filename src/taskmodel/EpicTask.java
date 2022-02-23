@@ -1,4 +1,4 @@
-package TaskPackage;
+package taskmodel;
 
 import java.util.HashMap;
 import java.util.Map;

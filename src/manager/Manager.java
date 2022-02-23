@@ -1,4 +1,6 @@
-import TaskPackage.*;
+package manager;
+
+import taskmodel.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,29 +71,6 @@ public class Manager {
         epicTaskMap.clear();
         subTaskMap.clear();
     }
-
-    /**
-     * Ищет id задачи во всех типах хранилища по ее названию
-     */
-    public int findTaskId(String taskName) {
-        for (int taskId : simpleTaskMap.keySet()) {
-            if (simpleTaskMap.get(taskId).getTaskName().equals(taskName)) {
-                return taskId;
-            }
-        }
-        for (int taskId : epicTaskMap.keySet()) {
-            if (epicTaskMap.get(taskId).getTaskName().equals(taskName)) {
-                return taskId;
-            }
-        }
-        for (int taskId : subTaskMap.keySet()) {
-            if (subTaskMap.get(taskId).getTaskName().equals(taskName)) {
-                return taskId;
-            }
-        }
-        throw new RuntimeException();
-    }
-
     /**
      * Возвращает задачу соответсвующего типа по id
      */
