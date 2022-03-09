@@ -1,17 +1,18 @@
 package taskmodel;
 
-public class SubTask extends Task {
+public class SubTask extends AbstractTask<SubTask>{
     private EpicTask epicTask;
+    private int epicTaskId;
 
-    public SubTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus, EpicTask epicTask) {
+    public SubTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus, int epicTaskId) {
         super(taskName, tastDescription, taskId, tastStatus);
-        this.epicTask = epicTask;
-        epicTask.addSubTask(this);
+        this.epicTaskId = epicTaskId;
+        //epicTask.addSubTask(this);
     }
 
     public SubTask(SubTask task, TaskStatus tastStatus) {
         super(task, tastStatus);
-        this.epicTask = task.getEpicTask();
+        this.epicTaskId = epicTaskId;
     }
 
     @Override
@@ -22,7 +23,7 @@ public class SubTask extends Task {
                 + '}';
     }
 
-    public EpicTask getEpicTask() {
-        return epicTask;
+    public int getEpicTaskId() {
+        return epicTaskId;
     }
 }

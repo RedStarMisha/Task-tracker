@@ -3,7 +3,7 @@ package taskmodel;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EpicTask extends Task {
+public class EpicTask extends AbstractTask<EpicTask> {
     private Map<Integer , SubTask> subTaskList;
 
     public EpicTask (String taskName, String tastDescription, int taskId, TaskStatus tastStatus) {
@@ -17,7 +17,7 @@ public class EpicTask extends Task {
     }
 
     /** Добавляет субклассы в локальное хранилище эпика */
-    protected void addSubTask (SubTask subTask) {
+    public void addSubTask (SubTask subTask) {
         subTaskList.put(subTask.getTaskId() , subTask);
     }
 

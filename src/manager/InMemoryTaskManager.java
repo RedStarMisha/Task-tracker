@@ -3,32 +3,41 @@ package manager;
 import taskmodel.*;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-public class Manager {
-    static int idNumeration = 1;
+public class InMemoryTaskManager {
+    private int id = 1;
+    List<AbstractTask> historyList = new LinkedList<>();
+
     private Map<Integer, Task> simpleTaskMap;
     private Map<Integer, EpicTask> epicTaskMap;
     private Map<Integer, SubTask> subTaskMap;
 
-    public Manager() {
+    private Map<Integer, AbstractTask> taskMap;
+
+    public InMemoryTaskManager() {
         simpleTaskMap = new HashMap<>();
         epicTaskMap = new HashMap<>();
         subTaskMap = new HashMap<>();
+
+        taskMap = new HashMap<>();
     }
+
+
 
     /**
      * Добавляет задачу соответсвующего типа в хранилище соответсвующего типа
      */
-    public void addTask(Object object) {
-        if (object.getClass() == Task.class) {
-            addTaskToSimpleTaskMap((Task) object);
-        } else if (object.getClass() == EpicTask.class) {
-            addTaskToEpicTaskMap((EpicTask) object);
-        } else if (object.getClass() == SubTask.class) {
-            addTaskToSubTaskMap((SubTask) object);
-        } else {
-            System.out.println("Хранение таких задач не предусмотрено");
+
+    public void addTask(AbstractTask task) {
+        if (task instanceof Task) {
+            addTaskToSimpleTaskMap((Task) task);
+        } else if (task instanceof EpicTask) {
+            addTaskToEpicTaskMap((EpicTask)  task);
+        } else if (task instanceof SubTask) {
+            addTaskToSubTaskMap((SubTask) task);
         }
     }
 
@@ -47,8 +56,9 @@ public class Manager {
         System.out.println("Подзадача '" + newTask.getTaskName() + "' добавлена, id = " + newTask.getTaskId());
     }
 
-    public static int setIdNumeration() {
-        return idNumeration++;
+
+    public int setIdNumeration() {
+        return id++;
     }
 
     public Map<Integer, Task> getSimpleTaskMap() {
@@ -78,6 +88,7 @@ public class Manager {
     public Task getSimpleTask(int id) {
         for (int taskId : simpleTaskMap.keySet()) {
             if (taskId == id) {
+                addToHistoryList(simpleTaskMap.get(id));
                 return simpleTaskMap.get(id);
             }
         }
@@ -87,6 +98,7 @@ public class Manager {
     public EpicTask getEpicTask(int id) {
         for (int taskId : epicTaskMap.keySet()) {
             if (taskId == id) {
+                addToHistoryList(epicTaskMap.get(id));
                 return epicTaskMap.get(id);
             }
         }
@@ -96,6 +108,7 @@ public class Manager {
     public SubTask getSubTask(int id) {
         for (int taskId : subTaskMap.keySet()) {
             if (taskId == id) {
+                addToHistoryList(subTaskMap.get(id));
                 return subTaskMap.get(id);
             }
         }
@@ -181,5 +194,19 @@ public class Manager {
             }
         }
         epicTaskMap.remove(id);
+    }
+
+    private void addToHistoryList(AbstractTask task) {
+        if (historyList.size() == 10) {
+            historyList.remove(0);
+            historyList.add(task);
+        } else {
+            historyList.add(task);
+        }
+    }
+
+
+    public List history() {
+        return historyList;
     }
 }
