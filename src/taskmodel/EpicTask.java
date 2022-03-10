@@ -1,28 +1,31 @@
 package taskmodel;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-public class EpicTask extends AbstractTask<EpicTask> {
-    private Map<Integer , SubTask> subTaskList;
+public class EpicTask extends AbstractTask {
+    private List<Integer> subTaskListId = new ArrayList<>();
 
     public EpicTask (String taskName, String tastDescription, int taskId, TaskStatus tastStatus) {
         super(taskName, tastDescription, taskId, tastStatus);
-        subTaskList = new HashMap <>();
     }
 
-    public EpicTask(EpicTask task, TaskStatus tastStatus) {
+    public EpicTask(AbstractTask task, TaskStatus tastStatus) {
         super(task, tastStatus);
-        this.subTaskList = task.getSubTaskList();
+        EpicTask epicTask = (EpicTask) task;
+        this.subTaskListId = epicTask.getSubTaskListId();
     }
 
-    /** Добавляет субклассы в локальное хранилище эпика */
-    public void addSubTask (SubTask subTask) {
-        subTaskList.put(subTask.getTaskId() , subTask);
+    /**
+     * В Эпике хранится тоько список id Сабтасков,
+     * относящихся к текущему эпику
+     */
+    public void addSubTask(Integer id) {
+        subTaskListId.add(id);
     }
 
-    public Map<Integer, SubTask> getSubTaskList() {
-        return subTaskList;
+    public List<Integer> getSubTaskListId() {
+        return subTaskListId;
     }
 
     @Override
