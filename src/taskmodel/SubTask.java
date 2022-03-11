@@ -29,5 +29,8 @@ public class SubTask extends AbstractTask{
                 + '}';
     }
 
-
+    @Override
+    public Class<?> getType() {
+        return this.getType();
+    }
 }

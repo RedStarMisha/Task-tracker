@@ -8,7 +8,7 @@ import java.util.Map;
 public class InMemoryTaskManager implements TaskManager {
     private int id = 1;
     private Map<Integer, AbstractTask> taskMap = new HashMap<>();
-    HistoryManager historyManager;
+    private HistoryManager historyManager;
 
     public InMemoryTaskManager(HistoryManager historyManager) {
         this.historyManager = historyManager;
@@ -110,4 +110,5 @@ public class InMemoryTaskManager implements TaskManager {
     public void history() {
         historyManager.getHistory();
     }
+
 }

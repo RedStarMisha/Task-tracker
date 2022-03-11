@@ -7,19 +7,19 @@ import java.util.Map;
 
 public interface TaskManager {
 
-    public void add(AbstractTask task);
+    void add(AbstractTask task);
 
-    public AbstractTask getTask(int id);
+    AbstractTask getTask(int id);
 
-    public int setIdNumeration();
+    int setIdNumeration();
 
-    public void updateTaskStatus(int id, TaskStatus status);
+    void updateTaskStatus(int id, TaskStatus status);
 
-    public Map<Integer, AbstractTask> getAllTask();
+    Map<Integer, AbstractTask> getAllTask();
 
-    public void clearTaskMap();
+    void clearTaskMap();
 
-    public void deteteTask(int id);
+    void deteteTask(int id);
 
-    public void history();
+    void history();
 }
