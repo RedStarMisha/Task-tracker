@@ -8,27 +8,27 @@ import taskmodel.*;
 public class Main {
     static TaskManager manager = Managers.getDefault();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         createTask();
-//        System.out.println(manager.getTask(1));
-//        System.out.println(manager.getAllTask());
-//        manager.clearTaskMap();
-//        System.out.println(manager.getAllTask());
-//        createTask();
-//        System.out.println(manager.getAllTask());
-//        manager.updateTaskStatus(1, TaskStatus.IN_PROGRESS);
-//        manager.updateTaskStatus(4, TaskStatus.IN_PROGRESS);
-//        System.out.println(manager.getAllTask());
-//        manager.updateTaskStatus(5, TaskStatus.DONE);
-//        manager.getTask(3);
-//        manager.updateTaskStatus(4, TaskStatus.DONE);
-//        manager.getTask(3);
-//        manager.updateTaskStatus(8, TaskStatus.DONE);
-//        System.out.println("После обновления");
-//        System.out.println(manager.getAllTask());
-//        manager.deteteTask(3);
-//        System.out.println(manager.getAllTask());
-//        manager.history();
+        System.out.println(manager.getTask(1));
+        System.out.println(manager.getAllTask());
+        manager.clearTaskMap();
+        System.out.println(manager.getAllTask());
+        createTask();
+        System.out.println(manager.getAllTask());
+        manager.updateTaskStatus(1, TaskStatus.IN_PROGRESS);
+        manager.updateTaskStatus(4, TaskStatus.IN_PROGRESS);
+        System.out.println(manager.getAllTask());
+        manager.updateTaskStatus(5, TaskStatus.DONE);
+        manager.getTask(3);
+        manager.updateTaskStatus(4, TaskStatus.DONE);
+        manager.getTask(3);
+        manager.updateTaskStatus(8, TaskStatus.DONE);
+        System.out.println("После обновления");
+        System.out.println(manager.getAllTask());
+        manager.deteteTask(3);
+        System.out.println(manager.getAllTask());
+        manager.history();
     }
 
     private static void createTask() {

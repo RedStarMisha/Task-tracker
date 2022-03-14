@@ -28,9 +28,4 @@ public class SubTask extends AbstractTask{
                 + ", taskStatus='" + taskStatus + '\''
                 + '}';
     }
-
-    @Override
-    public Class<?> getType() {
-        return this.getType();
-    }
 }

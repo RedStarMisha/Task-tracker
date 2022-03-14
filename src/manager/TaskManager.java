@@ -3,13 +3,14 @@ package manager;
 import taskmodel.AbstractTask;
 import taskmodel.TaskStatus;
 
+import java.util.List;
 import java.util.Map;
 
 public interface TaskManager {
 
     void add(AbstractTask task);
 
-    AbstractTask getTask(int id);
+    AbstractTask getTask(int id) throws Exception;
 
     int setIdNumeration();
 
@@ -21,5 +22,5 @@ public interface TaskManager {
 
     void deteteTask(int id);
 
-    void history();
+    List<AbstractTask> history();
 }

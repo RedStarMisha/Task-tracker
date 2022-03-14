@@ -35,9 +35,4 @@ public class EpicTask extends AbstractTask {
                 ", taskStatus=" + taskStatus +
                 '}';
     }
-
-    @Override
-    public Class<?> getType() {
-        return this.getType();
-    }
 }

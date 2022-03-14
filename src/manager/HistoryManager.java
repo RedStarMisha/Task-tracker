@@ -2,9 +2,11 @@ package manager;
 
 import taskmodel.AbstractTask;
 
+import java.util.List;
+
 public interface HistoryManager {
 
     void addTask (AbstractTask task);
 
-    void getHistory();
+    List<AbstractTask> getHistory();
 }

@@ -3,6 +3,7 @@ package manager;
 import taskmodel.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -25,15 +26,14 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public AbstractTask getTask(int id) {
+    public AbstractTask getTask(int id) throws Exception {
         for (int taskId : taskMap.keySet()) {
             if (taskId == id) {
                 historyManager.addTask(taskMap.get(id));
                 return taskMap.get(id);
             }
         }
-        System.out.println("Задачи с таким id не найдено");
-        throw new RuntimeException();
+        throw new Exception("Задачи с таким id не существует");
     }
 
     @Override
@@ -107,8 +107,8 @@ public class InMemoryTaskManager implements TaskManager {
         taskMap.remove(id);
     }
 
-    public void history() {
-        historyManager.getHistory();
+    public List<AbstractTask> history() {
+        return historyManager.getHistory();
     }
 
 }

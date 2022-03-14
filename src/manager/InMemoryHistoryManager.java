@@ -17,10 +17,7 @@ public class InMemoryHistoryManager implements HistoryManager{
     }
 
     @Override
-    public void getHistory() {
-        System.out.println("История запросов :");
-        for (AbstractTask task : historyList) {
-            System.out.println(task);
-        }
+    public List<AbstractTask> getHistory() {
+        return historyList;
     }
 }
