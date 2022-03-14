@@ -24,11 +24,12 @@ public class Main {
         manager.updateTaskStatus(4, TaskStatus.DONE);
         manager.getTask(3);
         manager.updateTaskStatus(8, TaskStatus.DONE);
+        manager.getTask(8);
         System.out.println("После обновления");
         System.out.println(manager.getAllTask());
         manager.deteteTask(3);
         System.out.println(manager.getAllTask());
-        manager.history();
+        System.out.println(manager.history());
     }
 
     private static void createTask() {

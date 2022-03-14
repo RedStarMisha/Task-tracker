@@ -18,6 +18,7 @@ public class InMemoryHistoryManager implements HistoryManager{
 
     @Override
     public List<AbstractTask> getHistory() {
+        System.out.println("История обращений к задачам");
         return historyList;
     }
 }
