@@ -102,9 +102,11 @@ public class InMemoryTaskManager implements TaskManager {
         if (taskMap.get(id) instanceof EpicTask) {
             for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {
                 taskMap.remove(subTaskid);
+                historyManager.remove(subTaskid);
             }
         }
         taskMap.remove(id);
+        historyManager.remove(id);
     }
 
     public List<AbstractTask> history() {

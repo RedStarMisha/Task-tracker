@@ -10,23 +10,13 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         createTask();
-        System.out.println(manager.getTask(1));
-        System.out.println(manager.getAllTask());
-        manager.clearTaskMap();
-        System.out.println(manager.getAllTask());
-        createTask();
-        System.out.println(manager.getAllTask());
-        manager.updateTaskStatus(1, TaskStatus.IN_PROGRESS);
-        manager.updateTaskStatus(4, TaskStatus.IN_PROGRESS);
-        System.out.println(manager.getAllTask());
-        manager.updateTaskStatus(5, TaskStatus.DONE);
+        manager.getTask(1);
         manager.getTask(3);
-        manager.updateTaskStatus(4, TaskStatus.DONE);
         manager.getTask(3);
-        manager.updateTaskStatus(8, TaskStatus.DONE);
         manager.getTask(8);
-        System.out.println("После обновления");
-        System.out.println(manager.getAllTask());
+        System.out.println(manager.history());
+        manager.getTask(3);
+        manager.getTask(4);
         manager.deteteTask(3);
         System.out.println(manager.getAllTask());
         System.out.println(manager.history());
