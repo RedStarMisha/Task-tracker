@@ -1,8 +1,12 @@
 package mylist;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 public class MyLinkedList<T> {
-    Node head;
-    Node tail;
+    Node<T> head;
+    Node<T> tail;
     int size;
 
     public void add(T element) {
@@ -14,23 +18,26 @@ public class MyLinkedList<T> {
     }
 
     public void add(int index, T element) {
-        indChecher(index);
-        Node previousNode = findNode(index -1);
+        checker(index);
         Node nextNode = findNode(index);
-        Node newNode = new Node<>(element);
-        previousNode.next = newNode;
-        newNode.previous = previousNode;
-        newNode.next = nextNode;
-        nextNode.previous = newNode;
+        if (nextNode.previous != null) {
+            Node previousNode = nextNode.previous;
+            Node newNode = new Node<>(previousNode, element, nextNode);
+            previousNode.next = newNode;
+            nextNode.previous = newNode;
+        } else {
+            head = new Node<>(null, element, nextNode);
+            nextNode.previous = head;
+        }
         size++;
     }
 
     private void addFirst(T element) {
         if (head == null) {
-            head = new Node(element);
+            head = new Node<T>(element);
         } else {
             Node oldHead = head;
-            head = new Node(element);
+            head = new Node<T>(null, element, oldHead);
             head.next = oldHead;
             oldHead.previous = head;
         }
@@ -39,12 +46,12 @@ public class MyLinkedList<T> {
 
     private void addLast(T element) {
         if (tail == null) {
-            tail = new Node<>(element);
+            tail = new Node<T>(element);
             tail.previous = head;
             head.next = tail;
         } else {
             Node oldTail = tail;
-            tail = new Node(element);
+            tail = new Node<T>(element);
             tail.previous = oldTail;
             oldTail.next = tail;
         }
@@ -53,22 +60,29 @@ public class MyLinkedList<T> {
 
     public T getFirst() {
         if (head == null) {
-            throw new IndexOutOfBoundsException();
+            throw new NullPointerException();
         }
         return (T) head.element;
     }
 
     @Override
     public String toString() {
-        String result = "[" + getFirst();
-        //Node node = head.next;
-
+        String result = "[";
         for (Node i = head; i != null; i = i.next) {
-            result += ", " + node.element;
+            result += i.next == null ? i.element + "]" : i.element + ", ";
+        }
+        return result;
+    }
+
+    public List<T> toArrayList () {
+        List <T> convertToArrayList = new ArrayList<>();
+        Node node = head;
+        while (node.next != null) {
+            convertToArrayList.add((T) node.element);
             node = node.next;
         }
-        result +="]";
-        return result;
+        convertToArrayList.add((T)node.element);
+        return convertToArrayList;
     }
 
     public int size() {
@@ -76,12 +90,28 @@ public class MyLinkedList<T> {
     }
 
     public void delete(int index) {
-        indChecher(index);
-        Node deleteNode = findNode(index);
-        deleteNode.next.previous = deleteNode.previous;
-        deleteNode.previous.next = deleteNode.next;
+        checker(index);
+        redefinitionNodeWhenDeleting(findNode(index));
+    }
+
+    public void delete(T element) {
+        redefinitionNodeWhenDeleting(findNode(element));
+    }
+
+    private void redefinitionNodeWhenDeleting (Node deleteNode) {
+        if (deleteNode.previous == null) {
+            head = deleteNode.next;
+            head.previous = null;
+        } else if (deleteNode.next == null){
+            deleteNode.previous.next = null;
+        } else {
+            deleteNode.next.previous = deleteNode.previous;
+            deleteNode.previous.next = deleteNode.next;
+        }
+        deleteNode.element = null;
         size--;
     }
+
 
     private Node<T> findNode(int index) {
         Node findNode;
@@ -99,7 +129,16 @@ public class MyLinkedList<T> {
         return findNode;
     }
 
-    private void indChecher(int index) {
+    private Node<T> findNode(Object element) {
+            for (Node i = head; i != null; i = i.next) {
+                if (i.element.equals(element)) {
+                    return i;
+                }
+            }
+            throw new IllegalArgumentException();
+    }
+
+    private void checker(int index) {
         if (index < 0 && index >= size) {
             throw new IndexOutOfBoundsException();
         }
@@ -109,6 +148,16 @@ public class MyLinkedList<T> {
         public Node next;
         public Node previous;
         public T element;
+
+        public Node(T element) {
+            this.element = element;
+        }
+
+        private Node(Node previous, T element, Node next) {
+            this.previous = previous;
+            this.element = element;
+            this.next = next;
+        }
 
         @Override
         public boolean equals(Object o) {
@@ -130,8 +179,5 @@ public class MyLinkedList<T> {
             return result;
         }
 
-        public Node(T element) {
-            this.element = element;
-        }
     }
 }

@@ -4,19 +4,24 @@ import manager.InMemoryTaskManager;
 import manager.Managers;
 import manager.TaskManager;
 import mylist.MyLinkedList;
+import org.w3c.dom.Node;
 import taskmodel.*;
 
-import java.util.Collection;
+import java.util.*;
 
 
 public class Main {
     static TaskManager manager = Managers.getDefault();
 
     public static void main(String[] args) throws Exception {
-//        createTask();
-//        manager.getTask(1);
-//        manager.getTask(3);
-//        manager.getTask(3);
+        final long startTime = System.nanoTime();
+        createTask();
+        manager.getTask(1);
+        System.out.println(manager.history());
+        manager.getTask(3);
+        System.out.println(manager.history());
+        manager.getTask(3);
+//        System.out.println(manager.history());
 //        manager.getTask(8);
 //        System.out.println(manager.history());
 //        manager.getTask(3);
@@ -24,20 +29,8 @@ public class Main {
 //        manager.deteteTask(3);
 //        System.out.println(manager.getAllTask());
 //        System.out.println(manager.history());
-        MyLinkedList<Integer> myLinkedList = new MyLinkedList<>();
-        myLinkedList.add(11);
-        myLinkedList.add(12);
-        myLinkedList.add(13);
-        myLinkedList.add(14);
-        myLinkedList.add(15);
-        myLinkedList.add(16);
-        myLinkedList.add(17);
-        System.out.println(myLinkedList);
-        System.out.println(myLinkedList.size());
-        myLinkedList.add(1,10);
-        //myLinkedList.delete(1);
-        System.out.println(myLinkedList.size());
-        System.out.println(myLinkedList);
+        final long endTime = System.nanoTime();
+        System.out.println("Время " + (endTime - startTime));
     }
 
     private static void createTask() {
