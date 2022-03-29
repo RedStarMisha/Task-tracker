@@ -14,23 +14,43 @@ public class Main {
     static TaskManager manager = Managers.getDefault();
 
     public static void main(String[] args) throws Exception {
-        final long startTime = System.nanoTime();
-        createTask();
-        manager.getTask(1);
-        System.out.println(manager.history());
-        manager.getTask(3);
-        System.out.println(manager.history());
-        manager.getTask(3);
+//        final long startTime = System.nanoTime();
+//        createTask();
+//        manager.getTask(3);
+//        System.out.println(manager.history());
+//        manager.getTask(1);
+//        System.out.println(manager.history());
+//        manager.getTask(3);
 //        System.out.println(manager.history());
 //        manager.getTask(8);
 //        System.out.println(manager.history());
 //        manager.getTask(3);
+//        System.out.println(manager.history());
 //        manager.getTask(4);
 //        manager.deteteTask(3);
 //        System.out.println(manager.getAllTask());
 //        System.out.println(manager.history());
-        final long endTime = System.nanoTime();
-        System.out.println("Время " + (endTime - startTime));
+//        final long endTime = System.nanoTime();
+//        System.out.println("Время " + (endTime - startTime));
+        MyLinkedList<Integer> myLinkedList = new MyLinkedList<>();
+        myLinkedList.add(1);
+        myLinkedList.add(2);
+        myLinkedList.add(3);
+        myLinkedList.add(4);
+        myLinkedList.add(5);
+        myLinkedList.add(6);
+        myLinkedList.add(7);
+        myLinkedList.add(8);
+        myLinkedList.add(9);
+        myLinkedList.add(11);
+        System.out.println(myLinkedList);
+
+        //myLinkedList.delete(9);
+        myLinkedList.add(9,10);
+        myLinkedList.add(0,0);
+        myLinkedList.add(5,25);
+        System.out.println(myLinkedList);
+
     }
 
     private static void createTask() {

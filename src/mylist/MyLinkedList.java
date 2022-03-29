@@ -1,7 +1,6 @@
 package mylist;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class MyLinkedList<T> {
@@ -20,25 +19,24 @@ public class MyLinkedList<T> {
     public void add(int index, T element) {
         checker(index);
         Node nextNode = findNode(index);
-        if (nextNode.previous != null) {
+        if (index == 0) {
+            head = new Node<>(null, element, nextNode);
+            nextNode.previous = head;
+        } else  {
             Node previousNode = nextNode.previous;
             Node newNode = new Node<>(previousNode, element, nextNode);
             previousNode.next = newNode;
             nextNode.previous = newNode;
-        } else {
-            head = new Node<>(null, element, nextNode);
-            nextNode.previous = head;
         }
         size++;
     }
 
     private void addFirst(T element) {
         if (head == null) {
-            head = new Node<T>(element);
+            head = new Node<>(element);
         } else {
             Node oldHead = head;
             head = new Node<T>(null, element, oldHead);
-            head.next = oldHead;
             oldHead.previous = head;
         }
         size++;
@@ -46,13 +44,11 @@ public class MyLinkedList<T> {
 
     private void addLast(T element) {
         if (tail == null) {
-            tail = new Node<T>(element);
-            tail.previous = head;
+            tail = new Node<>(head, element, null);
             head.next = tail;
         } else {
             Node oldTail = tail;
-            tail = new Node<T>(element);
-            tail.previous = oldTail;
+            tail = new Node<>(oldTail, element, null);
             oldTail.next = tail;
         }
         size++;
@@ -101,17 +97,15 @@ public class MyLinkedList<T> {
     private void redefinitionNodeWhenDeleting (Node deleteNode) {
         if (deleteNode.previous == null) {
             head = deleteNode.next;
-            head.previous = null;
         } else if (deleteNode.next == null){
-            deleteNode.previous.next = null;
+            tail = deleteNode.previous.equals(head) ? null : deleteNode.previous;
+            tail.next = null;
         } else {
             deleteNode.next.previous = deleteNode.previous;
             deleteNode.previous.next = deleteNode.next;
         }
-        deleteNode.element = null;
         size--;
     }
-
 
     private Node<T> findNode(int index) {
         Node findNode;
