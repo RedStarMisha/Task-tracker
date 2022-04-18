@@ -6,12 +6,14 @@ public class SubTask extends AbstractTask{
     public SubTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus, int epicTaskId) {
         super(taskName, tastDescription, taskId, tastStatus);
         this.epicTaskId = epicTaskId;
+        taskType = TaskType.SubTask;
     }
 
     public SubTask(AbstractTask task, TaskStatus tastStatus) {
         super(task, tastStatus);
         SubTask subTask = (SubTask) task;
         this.epicTaskId = subTask.getEpicTaskId();
+        taskType = TaskType.SubTask;
     }
 
     /**
@@ -23,9 +25,6 @@ public class SubTask extends AbstractTask{
 
     @Override
     public String toString() {
-        return "SubTask эпика id '" + getEpicTaskId() + "'" + "{"
-                + "taskName='" + taskName + '\''
-                + ", taskStatus='" + taskStatus + '\''
-                + '}';
+        return super.toString() + "." + epicTaskId;
     }
 }

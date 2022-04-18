@@ -2,21 +2,23 @@ package manager;
 
 import taskmodel.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class InMemoryTaskManager implements TaskManager {
     private int id = 1;
-    private Map<Integer, AbstractTask> taskMap = new HashMap<>();
-    private HistoryManager historyManager;
+    protected Map<Integer, AbstractTask> taskMap = new HashMap<>();
+    protected static HistoryManager historyManager;
 
     public InMemoryTaskManager(HistoryManager historyManager) {
         this.historyManager = historyManager;
     }
 
     @Override
-    public void add(AbstractTask task) {
+    public void add(AbstractTask task) throws IOException {
         if (task instanceof SubTask) {
             EpicTask epicForSubTask = (EpicTask) taskMap.get(((SubTask) task).getEpicTaskId());
             epicForSubTask.addSubTask(task.getTaskId());
@@ -26,14 +28,14 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public AbstractTask getTask(int id) throws Exception {
+    public AbstractTask getTask(int id) throws IOException {
         for (int taskId : taskMap.keySet()) {
             if (taskId == id) {
                 historyManager.addTask(taskMap.get(id));
                 return taskMap.get(id);
             }
         }
-        throw new Exception("Задачи с таким id не существует");
+        throw new NoSuchElementException("Задачи с таким id не существует");
     }
 
     @Override
@@ -62,7 +64,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else if (taskMap.get(id) instanceof SubTask) {
             updateSubTaskStatus((SubTask) taskMap.get(id), status);
         } else {
-            System.out.println("Задачи с таким id не существует");
+            throw new NoSuchElementException("Задачи с таким id не существует");
         }
     }
 
@@ -99,14 +101,18 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deteteTask(int id) {
-        if (taskMap.get(id) instanceof EpicTask) {
-            for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {
-                taskMap.remove(subTaskid);
-                historyManager.remove(subTaskid);
+        if (taskMap.containsKey(id)) {
+            if (taskMap.get(id) instanceof EpicTask) {
+                for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {
+                    taskMap.remove(subTaskid);
+                    historyManager.remove(subTaskid);
+                }
             }
+            taskMap.remove(id);
+            historyManager.remove(id);
+        } else {
+            throw new NoSuchElementException("Задачи с таким id не существует");
         }
-        taskMap.remove(id);
-        historyManager.remove(id);
     }
 
     public List<AbstractTask> history() {

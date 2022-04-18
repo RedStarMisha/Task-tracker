@@ -9,6 +9,7 @@ public class InMemoryHistoryManager implements HistoryManager{
     private MyLinkedList historyList = new MyLinkedList();
     private Map<Integer, AbstractTask> mapForFindTaskInList = new HashMap<>();
 
+
     @Override
     public void addTask(AbstractTask task) {
         remove(task.getTaskId());
@@ -21,7 +22,6 @@ public class InMemoryHistoryManager implements HistoryManager{
 
     @Override
     public List<AbstractTask> getHistory() {
-        System.out.println("История обращений к задачам");
         return historyList.toArrayList();
     }
 
@@ -29,7 +29,6 @@ public class InMemoryHistoryManager implements HistoryManager{
     public void remove(int id) {
         if (mapForFindTaskInList.containsKey(id)) {
             historyList.delete(mapForFindTaskInList.get(id));
-            mapForFindTaskInList.remove(id);
         }
     }
 

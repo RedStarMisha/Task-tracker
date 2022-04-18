@@ -8,12 +8,20 @@ public class EpicTask extends AbstractTask {
 
     public EpicTask (String taskName, String tastDescription, int taskId, TaskStatus tastStatus) {
         super(taskName, tastDescription, taskId, tastStatus);
+        taskType = TaskType.EpicTask;
     }
+
+    public EpicTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus, List<Integer> subTaskListId) {
+        super(taskName, tastDescription, taskId, tastStatus);
+        this.subTaskListId = subTaskListId;
+    }
+
 
     public EpicTask(AbstractTask task, TaskStatus tastStatus) {
         super(task, tastStatus);
         EpicTask epicTask = (EpicTask) task;
         this.subTaskListId = epicTask.getSubTaskListId();
+        taskType = TaskType.EpicTask;
     }
 
     /**
@@ -30,9 +38,10 @@ public class EpicTask extends AbstractTask {
 
     @Override
     public String toString() {
-        return "EpicTask{" +
-                "taskName='" + taskName + '\'' +
-                ", taskStatus=" + taskStatus +
-                '}';
+        String epicInfo = super.toString() + ".";
+        for (int i = 0; i < subTaskListId.size(); i++) {
+            epicInfo += (i == subTaskListId.size() - 1) ? subTaskListId.get(i) : subTaskListId.get(i) + ",";
+        }
+        return epicInfo;
     }
 }

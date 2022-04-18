@@ -3,12 +3,13 @@ package manager;
 import taskmodel.AbstractTask;
 import taskmodel.TaskStatus;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 public interface TaskManager {
 
-    void add(AbstractTask task);
+    void add(AbstractTask task) throws IOException;
 
     AbstractTask getTask(int id) throws Exception;
 

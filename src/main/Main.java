@@ -1,21 +1,31 @@
 package main;
 
-import manager.InMemoryTaskManager;
-import manager.Managers;
-import manager.TaskManager;
+import manager.*;
 import mylist.MyLinkedList;
 import org.w3c.dom.Node;
 import taskmodel.*;
 
+import java.io.IOException;
 import java.util.*;
 
 
 public class Main {
-    static TaskManager manager = Managers.getDefault();
+
+    //static TaskManager manager = Managers.getDefault();
+    static FileBacketTaskManager manager;
+
+    static {
+        try {
+            manager = new FileBacketTaskManager(new InMemoryHistoryManager());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static void main(String[] args) throws Exception {
-//        final long startTime = System.nanoTime();
-//        createTask();
+
+       createTask();
 //        manager.getTask(3);
 //        System.out.println(manager.history());
 //        manager.getTask(1);
@@ -30,30 +40,17 @@ public class Main {
 //        manager.deteteTask(3);
 //        System.out.println(manager.getAllTask());
 //        System.out.println(manager.history());
-//        final long endTime = System.nanoTime();
-//        System.out.println("Время " + (endTime - startTime));
-        MyLinkedList<Integer> myLinkedList = new MyLinkedList<>();
-        myLinkedList.add(1);
-        myLinkedList.add(2);
-        myLinkedList.add(3);
-        myLinkedList.add(4);
-        myLinkedList.add(5);
-        myLinkedList.add(6);
-        myLinkedList.add(7);
-        myLinkedList.add(8);
-        myLinkedList.add(9);
-        myLinkedList.add(11);
-        System.out.println(myLinkedList);
-
-        //myLinkedList.delete(9);
-        myLinkedList.add(9,10);
-        myLinkedList.add(0,0);
-        myLinkedList.add(5,25);
-        System.out.println(myLinkedList);
-
+//
+//        //MyLinkedList<Integer> myLinkedList = new MyLinkedList<>();
+        //manager.add(new Task("Погладить брюки","Погладить брюки на работу, сделать стрелки",manager.setIdNumeration(),TaskStatus.NEW));
+        manager.getTask(3);
+        manager.getTask(5);
+        manager.getTask(1);
+        manager.getTask(7);
+       // manager.dataLoader();
     }
 
-    private static void createTask() {
+    private static void createTask() throws IOException {
         manager.add(new Task("Убрать за котом",
         "Необходимо убрать лоток за котом, помыть его и насыпать новго наполнителя",
         manager.setIdNumeration(), TaskStatus.NEW));
@@ -71,7 +68,7 @@ public class Main {
         manager.add(new EpicTask("Убраться в спальне",
                 "Провести быструю уборку в спальной комнате", manager.setIdNumeration(), TaskStatus.NEW));
         manager.add(new SubTask("Убрать постель",
-                "Убрать одеяла, застелить постель", manager.setIdNumeration(), TaskStatus.NEW,
+                "Убрать одеяла и застелить постель", manager.setIdNumeration(), TaskStatus.NEW,
                 6));
         manager.add(new EpicTask("Приготовить ужин",
                 "Приготовить ужин на двоих", manager.setIdNumeration(), TaskStatus.NEW));

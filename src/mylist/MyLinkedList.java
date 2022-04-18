@@ -2,11 +2,13 @@ package mylist;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class MyLinkedList<T> {
     Node<T> head;
     Node<T> tail;
     int size;
+
 
     public void add(T element) {
         if (head == null) {
@@ -17,7 +19,7 @@ public class MyLinkedList<T> {
     }
 
     public void add(int index, T element) {
-        checker(index);
+        checkerIndex(index);
         Node nextNode = findNode(index);
         if (index == 0) {
             head = new Node<>(null, element, nextNode);
@@ -54,11 +56,11 @@ public class MyLinkedList<T> {
         size++;
     }
 
-    public T getFirst() {
-        if (head == null) {
-            throw new NullPointerException();
+    public T getFirst() throws NoSuchElementException {
+        if (isEmpty()) {
+            throw new NoSuchElementException("Список пуст");
         }
-        return (T) head.element;
+        return head.element;
     }
 
     @Override
@@ -71,14 +73,17 @@ public class MyLinkedList<T> {
     }
 
     public List<T> toArrayList () {
-        List <T> convertToArrayList = new ArrayList<>();
-        Node node = head;
+        if (isEmpty()) {
+            throw new NoSuchElementException("Список пуст");
+        }
+        List<T> convertedToArrayList = new ArrayList<>();
+        Node<T> node = head;
         while (node.next != null) {
-            convertToArrayList.add((T) node.element);
+            convertedToArrayList.add(node.element);
             node = node.next;
         }
-        convertToArrayList.add((T)node.element);
-        return convertToArrayList;
+        convertedToArrayList.add(node.element);
+        return convertedToArrayList;
     }
 
     public int size() {
@@ -86,12 +91,23 @@ public class MyLinkedList<T> {
     }
 
     public void delete(int index) {
-        checker(index);
+        checkerIndex(index);
         redefinitionNodeWhenDeleting(findNode(index));
     }
 
-    public void delete(T element) {
-        redefinitionNodeWhenDeleting(findNode(element));
+    public void delete(T element) throws NoSuchElementException {
+        try{
+            redefinitionNodeWhenDeleting(findNode(element));
+        } catch (NoSuchElementException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public boolean isEmpty() {
+        if (head == null) {
+            return true;
+        }
+        return false;
     }
 
     private void redefinitionNodeWhenDeleting (Node deleteNode) {
@@ -129,12 +145,12 @@ public class MyLinkedList<T> {
                     return i;
                 }
             }
-            throw new IllegalArgumentException();
+            throw new NoSuchElementException("Элемент отсутствует");
     }
 
-    private void checker(int index) {
+    private void checkerIndex(int index) {
         if (index < 0 && index >= size) {
-            throw new IndexOutOfBoundsException();
+            throw new IndexOutOfBoundsException("Элемент с таким индексом отсутствует");
         }
     }
 

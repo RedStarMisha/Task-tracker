@@ -5,6 +5,7 @@ public abstract class AbstractTask {
     protected final String tastDescription;
     protected final int taskId;
     protected TaskStatus taskStatus;
+    protected TaskType taskType;
 
     public AbstractTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus) {
         this.taskName = taskName;
@@ -34,5 +35,10 @@ public abstract class AbstractTask {
 
     public TaskStatus getTaskStatus() {
         return taskStatus;
+    }
+
+    @Override
+    public String toString() {
+        return taskType.toString() + "." + taskId + "." + taskName + "." + tastDescription + "." + taskStatus;
     }
 }
