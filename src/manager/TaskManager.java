@@ -21,7 +21,8 @@ public interface TaskManager {
 
     void clearTaskMap();
 
-    void deteteTask(int id);
+    void deteteTask(int id) throws IOException;
 
     List<AbstractTask> history();
+
 }

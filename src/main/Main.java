@@ -1,59 +1,52 @@
 package main;
 
 import manager.*;
-import mylist.MyLinkedList;
-import org.w3c.dom.Node;
 import taskmodel.*;
-
 import java.io.IOException;
-import java.util.*;
 
+
+/**
+ * Прошу дополнительно посмотреть верность(а скорее неверность) применение исключений.
+ * Я в этой теме не совсем хорошо разобрался.
+ * Также прошу взглянуть на MyLinkedList т.к. в том спринте я его не делал
+ */
 
 public class Main {
-
-    //static TaskManager manager = Managers.getDefault();
-    static FileBacketTaskManager manager;
+    static TaskManager manager;
 
     static {
         try {
-            manager = new FileBacketTaskManager(new InMemoryHistoryManager());
-        } catch (IOException e) {
-            e.printStackTrace();
+            manager = Managers.getFileManager();
+        } catch (Exception e) {
+            System.out.println("Не удалось запустить менеджер задач. Проверьте параметры");
         }
     }
 
-
     public static void main(String[] args) throws Exception {
-
-       createTask();
-//        manager.getTask(3);
-//        System.out.println(manager.history());
-//        manager.getTask(1);
-//        System.out.println(manager.history());
-//        manager.getTask(3);
-//        System.out.println(manager.history());
-//        manager.getTask(8);
-//        System.out.println(manager.history());
-//        manager.getTask(3);
-//        System.out.println(manager.history());
-//        manager.getTask(4);
-//        manager.deteteTask(3);
-//        System.out.println(manager.getAllTask());
-//        System.out.println(manager.history());
-//
-//        //MyLinkedList<Integer> myLinkedList = new MyLinkedList<>();
-        //manager.add(new Task("Погладить брюки","Погладить брюки на работу, сделать стрелки",manager.setIdNumeration(),TaskStatus.NEW));
-        manager.getTask(3);
-        manager.getTask(5);
-        manager.getTask(1);
-        manager.getTask(7);
-       // manager.dataLoader();
+        try {
+            createTask();
+            manager.getTask(3);
+            System.out.println(manager.history());
+            manager.getTask(1);
+            System.out.println(manager.history());
+            manager.getTask(3);
+            manager.getTask(8);
+            manager.getTask(3);
+            manager.getTask(4);
+            manager.deteteTask(8);
+            manager.add(new EpicTask("Приготовить ужин", "Приготовить ужин на двоих",
+                    manager.setIdNumeration(), TaskStatus.NEW));
+            manager.getTask(9);
+            manager.updateTaskStatus(2, TaskStatus.IN_PROGRESS);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private static void createTask() throws IOException {
         manager.add(new Task("Убрать за котом",
-        "Необходимо убрать лоток за котом, помыть его и насыпать новго наполнителя",
-        manager.setIdNumeration(), TaskStatus.NEW));
+                "Необходимо убрать лоток за котом, помыть его и насыпать новго наполнителя",
+                manager.setIdNumeration(), TaskStatus.NEW));
         manager.add(new Task("Поменять лампочку на кухне",
                 "Выкрутить старую лампочку, правильно ее утилизировать и вкрутить новую",
                 manager.setIdNumeration(), TaskStatus.NEW));

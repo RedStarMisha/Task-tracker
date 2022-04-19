@@ -1,69 +1,39 @@
 package manager;
 
-import taskmodel.AbstractTask;
-import taskmodel.EpicTask;
-import taskmodel.Task;
-import taskmodel.TaskStatus;
+import filemanagment.Restorer;
+import taskmodel.*;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.NoSuchElementException;
 
-public class FileBacketTaskManager extends InMemoryTaskManager {
+public class FileBacketTaskManager extends InMemoryTaskManager implements Saveable {
 
-    Path path = Path.of("C:\\Users\\Valya\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
-    Set<Integer> savedStringIfFile = new HashSet<>();
-
-
-    public FileBacketTaskManager(HistoryManager historyManager) throws IOException {
+    /**
+     * Загрузка данных из файла происходит в контрукторе
+     * @param historyManager
+     * @throws Exception
+     */
+    public FileBacketTaskManager(HistoryManager historyManager) throws Exception {
         super(historyManager);
-        fileChecker();
     }
 
-    private void fileChecker() throws IOException {
+    /**
+     * Метод проверяет создан ли файл. Если файла нет, создает его,
+     * а если файл есть, то загружает из него информацию через класс Restorer. Стандартный
+     * класс InMemoryTaskManager поддерживает подгрузку данных из файла,
+     * но не поддерживает сохранение в него
+     *
+     * @throws IOException
+     */
+    @Override
+    protected void fileRecoveryChecker() throws IOException {
         if (!Files.exists(path)) {
             Files.createFile(path);
         } else {
-            dataLoader();
+            Restorer.dataLoader(path, this);
         }
-    }
-
-    public void dataLoader() throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(path.toString()));
-        boolean historyPart = false;
-        while (bufferedReader.ready()) {
-            String line = bufferedReader.readLine();
-            if (line.equals("requesthistory")) {
-                historyPart = true;
-            }
-            if (historyPart) {
-                String [] history = line.split(",");
-                for(String idForHistory:history){
-                    //historyManager.addTask(taskMap.get(Integer.parseInt(idForHistory)));
-                }
-                break;
-            }
-            taskMapLoader(line);
-        }
-        bufferedReader.close();
-    }
-
-    private void taskMapLoader(String line) {
-        if (line.startsWith("typetask")) {
-            return;
-        }
-        String [] history = line.split(".");
-        if (history[0].equals("Task")) {
-            taskMap.put(Integer.parseInt(history[1]),new Task(history[2],history[3],Integer.parseInt(history[1]),
-                    TaskStatus.valueOf(history[4])));
-        } else if(history[0].equals("EpicTask")) {
-           // taskMap.put(Integer.parseInt(history[1]),new EpicTask(history[2],history[3],Integer.parseInt(history[1]),
-                    //TaskStatus.valueOf(history[4]), Arrays.asList(history[5].split(","))));
-        }
-
     }
 
     @Override
@@ -74,23 +44,44 @@ public class FileBacketTaskManager extends InMemoryTaskManager {
 
     @Override
     public AbstractTask getTask(int id) throws IOException {
-        AbstractTask task = super.getTask(id);
-        save();
-        return task;
+        if (taskMap.containsKey(id)) {
+            historyManager.addTask(taskMap.get(id));
+            save();
+            return taskMap.get(id);
+        }
+        throw new NoSuchElementException("Задачи с таким id не существует");
+
     }
 
-    private void save() throws IOException {
-        try(Writer writer = new FileWriter(path.toString())){
+    @Override
+    public void deteteTask(int id) throws IOException {
+        super.deteteTask(id);
+        save();
+    }
+
+    @Override
+    public void updateTaskStatus(int id, TaskStatus status) {
+        super.updateTaskStatus(id, status);
+        save();
+    }
+
+    /**
+     * Метод сохраняет список задач и историю запросов
+     * в файл
+     */
+    public void save() {
+        try (Writer writer = new FileWriter(path.toString())) {
             writer.write("typetask.id.name.description.status.id epic/subtask\n");
-            for (AbstractTask task:taskMap.values()) {
+            for (AbstractTask task : taskMap.values()) {
                 writer.write(task.toString() + "\n");
             }
             writer.write("\nrequesthistory\n");
-            for (int i = 0; i < history().size(); i++){
+            for (int i = 0; i < history().size(); i++) {
                 writer.write(i == history().size() - 1 ?
-                        String.valueOf(history().get(i).getTaskId()):history().get(i).getTaskId() + ",");
+                        String.valueOf(history().get(i).getTaskId()) : history().get(i).getTaskId() + ",");
             }
         } catch (Exception e) {
+            System.out.println("Запись в файл не завершена должным образом");
         }
     }
 }

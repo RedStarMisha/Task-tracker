@@ -21,12 +21,13 @@ public class InMemoryHistoryManager implements HistoryManager{
     }
 
     @Override
-    public List<AbstractTask> getHistory() {
+    public List<AbstractTask> getHistory() throws NoSuchElementException {
         return historyList.toArrayList();
     }
 
     @Override
     public void remove(int id) {
+        mapForFindTaskInList.containsKey(id);
         if (mapForFindTaskInList.containsKey(id)) {
             historyList.delete(mapForFindTaskInList.get(id));
         }

@@ -63,15 +63,6 @@ public class MyLinkedList<T> {
         return head.element;
     }
 
-    @Override
-    public String toString() {
-        String result = "[";
-        for (Node i = head; i != null; i = i.next) {
-            result += i.next == null ? i.element + "]" : i.element + ", ";
-        }
-        return result;
-    }
-
     public List<T> toArrayList () {
         if (isEmpty()) {
             throw new NoSuchElementException("Список пуст");
@@ -110,9 +101,26 @@ public class MyLinkedList<T> {
         return false;
     }
 
+    @Override
+    public String toString() {
+        String result = "[";
+        for (Node i = head; i != null; i = i.next) {
+            result += i.next == null ? i.element + "]" : i.element + ", ";
+        }
+        return result;
+    }
+
+
+
+    /**
+     * метод переопределяет ссылки next и previous
+     * при удалении элемента
+     * @param deleteNode - удаляемый узел
+     */
     private void redefinitionNodeWhenDeleting (Node deleteNode) {
         if (deleteNode.previous == null) {
             head = deleteNode.next;
+            head.previous = null;
         } else if (deleteNode.next == null){
             tail = deleteNode.previous.equals(head) ? null : deleteNode.previous;
             tail.next = null;
@@ -123,6 +131,12 @@ public class MyLinkedList<T> {
         size--;
     }
 
+    /**
+     * метод поиска узла с конца или
+     * начала списка по индексу
+     * @param index
+     * @return - возвращает искомый узел
+     */
     private Node<T> findNode(int index) {
         Node findNode;
         if (index >= size/2) {
@@ -139,6 +153,12 @@ public class MyLinkedList<T> {
         return findNode;
     }
 
+    /**
+     * метод поиска узла по элементу
+     * @param element - элемент хранящийся в списке
+     * @return
+     */
+
     private Node<T> findNode(Object element) {
             for (Node i = head; i != null; i = i.next) {
                 if (i.element.equals(element)) {
@@ -148,6 +168,11 @@ public class MyLinkedList<T> {
             throw new NoSuchElementException("Элемент отсутствует");
     }
 
+
+    /**
+     * метод проверки индекса элемента
+     * @param index
+     */
     private void checkerIndex(int index) {
         if (index < 0 && index >= size) {
             throw new IndexOutOfBoundsException("Элемент с таким индексом отсутствует");
@@ -188,6 +213,5 @@ public class MyLinkedList<T> {
             result = 31 * result + element.hashCode();
             return result;
         }
-
     }
 }

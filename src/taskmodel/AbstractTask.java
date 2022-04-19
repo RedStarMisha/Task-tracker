@@ -41,4 +41,19 @@ public abstract class AbstractTask {
     public String toString() {
         return taskType.toString() + "." + taskId + "." + taskName + "." + tastDescription + "." + taskStatus;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbstractTask task = (AbstractTask) o;
+
+        return taskId == task.taskId;
+    }
+
+    @Override
+    public int hashCode() {
+        return taskId;
+    }
 }

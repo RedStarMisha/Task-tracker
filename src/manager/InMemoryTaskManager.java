@@ -1,20 +1,35 @@
 package manager;
 
+import filemanagment.Restorer;
 import taskmodel.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+
 public class InMemoryTaskManager implements TaskManager {
     private int id = 1;
     protected Map<Integer, AbstractTask> taskMap = new HashMap<>();
     protected static HistoryManager historyManager;
+    Path path = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
+    public static HistoryManager getHistoryManager() {
+        return historyManager;
+    }
 
-    public InMemoryTaskManager(HistoryManager historyManager) {
+    public InMemoryTaskManager(HistoryManager historyManager) throws Exception {
         this.historyManager = historyManager;
+        fileRecoveryChecker();
+    }
+
+    protected void fileRecoveryChecker() throws IOException {
+        if (Files.exists(path)) {
+            Restorer.dataLoader(path , this);
+        }
     }
 
     @Override
@@ -29,11 +44,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public AbstractTask getTask(int id) throws IOException {
-        for (int taskId : taskMap.keySet()) {
-            if (taskId == id) {
-                historyManager.addTask(taskMap.get(id));
-                return taskMap.get(id);
-            }
+        if (taskMap.containsKey(id)) {
+            historyManager.addTask(taskMap.get(id));
+            return taskMap.get(id);
         }
         throw new NoSuchElementException("Задачи с таким id не существует");
     }
@@ -100,7 +113,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deteteTask(int id) {
+    public void deteteTask(int id) throws IOException {
         if (taskMap.containsKey(id)) {
             if (taskMap.get(id) instanceof EpicTask) {
                 for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {

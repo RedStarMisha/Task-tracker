@@ -14,6 +14,7 @@ public class EpicTask extends AbstractTask {
     public EpicTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus, List<Integer> subTaskListId) {
         super(taskName, tastDescription, taskId, tastStatus);
         this.subTaskListId = subTaskListId;
+        taskType = TaskType.EpicTask;
     }
 
 
@@ -44,4 +45,5 @@ public class EpicTask extends AbstractTask {
         }
         return epicInfo;
     }
+
 }
