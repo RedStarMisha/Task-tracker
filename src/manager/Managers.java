@@ -16,7 +16,4 @@ public class Managers  {
         return new FileBacketTaskManager(getDefaultHistory());
     }
 
-
-
-
 }

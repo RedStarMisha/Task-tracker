@@ -1,6 +1,7 @@
 package filemanagment;
 
 import manager.InMemoryTaskManager;
+import myexception.ManagerSaveException;
 import taskmodel.*;
 
 import java.io.BufferedReader;
@@ -22,15 +23,21 @@ public class Restorer {
      * @param fileBacketTaskManager
      * @throws IOException
      */
-    public static void dataLoader(Path path, InMemoryTaskManager fileBacketTaskManager) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(path.toString()));
-        boolean historyPartInFile = false;
-        while (bufferedReader.ready()) {
-            String line = bufferedReader.readLine();
-            historyPartInFile = historyLoader(historyPartInFile, line, fileBacketTaskManager);
-            taskMapLoader(line, fileBacketTaskManager);
+    public static void dataLoader(Path path, InMemoryTaskManager fileBacketTaskManager) {
+        try {
+            try (BufferedReader bufferedReader = new BufferedReader(new FileReader(path.toString()))) {
+                boolean historyPartInFile = false;
+                while (bufferedReader.ready()) {
+                    String line = bufferedReader.readLine();
+                    historyPartInFile = historyLoader(historyPartInFile, line, fileBacketTaskManager);
+                    taskMapLoader(line, fileBacketTaskManager);
+                }
+            } catch (Exception e) {
+                throw new ManagerSaveException("База задач не была загружена из файла");
+            }
+        } catch (ManagerSaveException m) {
+            System.out.println("Ошибка: " + m.getMessage());
         }
-        bufferedReader.close();
     }
 
     /**

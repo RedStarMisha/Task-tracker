@@ -14,16 +14,9 @@ import java.io.IOException;
 public class Main {
     static TaskManager manager;
 
-    static {
-        try {
-            manager = Managers.getFileManager();
-        } catch (Exception e) {
-            System.out.println("Не удалось запустить менеджер задач. Проверьте параметры");
-        }
-    }
-
     public static void main(String[] args) throws Exception {
         try {
+            manager = Managers.getFileManager();
             createTask();
             manager.getTask(3);
             System.out.println(manager.history());

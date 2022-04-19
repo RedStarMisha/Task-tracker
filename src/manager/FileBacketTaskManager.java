@@ -1,6 +1,7 @@
 package manager;
 
 import filemanagment.Restorer;
+import myexception.ManagerSaveException;
 import taskmodel.*;
 
 import java.io.*;
@@ -70,18 +71,23 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      * в файл
      */
     public void save() {
-        try (Writer writer = new FileWriter(path.toString())) {
-            writer.write("typetask.id.name.description.status.id epic/subtask\n");
-            for (AbstractTask task : taskMap.values()) {
-                writer.write(task.toString() + "\n");
+        try {
+            try (Writer writer = new FileWriter(path.toString())) {
+                writer.write("typetask.id.name.description.status.id epic/subtask\n");
+                for (AbstractTask task : taskMap.values()) {
+                    writer.write(task.toString() + "\n");
+                }
+                writer.write("\nrequesthistory\n");
+                for (int i = 0; i < history().size(); i++) {
+                    writer.write(i == history().size() - 1 ?
+                            String.valueOf(history().get(i).getTaskId()) : history().get(i).getTaskId() + ",");
+                }
+            } catch (Exception e) {
+                throw new ManagerSaveException("Данные не были сохранены");
             }
-            writer.write("\nrequesthistory\n");
-            for (int i = 0; i < history().size(); i++) {
-                writer.write(i == history().size() - 1 ?
-                        String.valueOf(history().get(i).getTaskId()) : history().get(i).getTaskId() + ",");
-            }
-        } catch (Exception e) {
-            System.out.println("Запись в файл не завершена должным образом");
+        } catch (ManagerSaveException m) {
+            System.out.println(m);
+            System.exit(0);
         }
     }
 }
