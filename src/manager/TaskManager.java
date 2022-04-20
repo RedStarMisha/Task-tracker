@@ -1,5 +1,6 @@
 package manager;
 
+import myexception.ManagerSaveException;
 import taskmodel.AbstractTask;
 import taskmodel.TaskStatus;
 
@@ -9,19 +10,19 @@ import java.util.Map;
 
 public interface TaskManager {
 
-    void add(AbstractTask task) throws IOException;
+    void add(AbstractTask task) throws ManagerSaveException;
 
     AbstractTask getTask(int id) throws Exception;
 
     int setIdNumeration();
 
-    void updateTaskStatus(int id, TaskStatus status);
+    void updateTaskStatus(int id, TaskStatus status) throws ManagerSaveException;
 
     Map<Integer, AbstractTask> getAllTask();
 
     void clearTaskMap();
 
-    void deteteTask(int id) throws IOException;
+    void deteteTask(int id) throws IOException, ManagerSaveException;
 
     List<AbstractTask> history();
 

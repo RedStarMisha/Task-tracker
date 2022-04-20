@@ -63,18 +63,23 @@ public class MyLinkedList<T> {
         return head.element;
     }
 
-    public List<T> toArrayList () {
-        if (isEmpty()) {
-            throw new NoSuchElementException("Список пуст");
-        }
-        List<T> convertedToArrayList = new ArrayList<>();
-        Node<T> node = head;
-        while (node.next != null) {
+    public List<T> toArrayList() throws NoSuchElementException {
+        try{
+            if (isEmpty()) {
+                throw new NoSuchElementException("Список пуст");
+            }
+            List<T> convertedToArrayList = new ArrayList<>();
+            Node<T> node = head;
+            while (node.next != null) {
+                convertedToArrayList.add(node.element);
+                node = node.next;
+            }
             convertedToArrayList.add(node.element);
-            node = node.next;
+            return convertedToArrayList;
+        } catch (NoSuchElementException e){
+            System.out.println(e.getMessage());
+            return null;
         }
-        convertedToArrayList.add(node.element);
-        return convertedToArrayList;
     }
 
     public int size() {

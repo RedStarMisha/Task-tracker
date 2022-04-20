@@ -1,6 +1,7 @@
 package manager;
 
 import filemanagment.Restorer;
+import myexception.ManagerSaveException;
 import taskmodel.*;
 
 import java.io.IOException;
@@ -21,19 +22,19 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
-    public InMemoryTaskManager(HistoryManager historyManager) throws Exception {
+    public InMemoryTaskManager(HistoryManager historyManager) throws IOException, ManagerSaveException {
         this.historyManager = historyManager;
         fileRecoveryChecker();
     }
 
-    protected void fileRecoveryChecker() throws IOException {
+    protected void fileRecoveryChecker() throws IOException, ManagerSaveException {
         if (Files.exists(path)) {
             Restorer.dataLoader(path , this);
         }
     }
 
     @Override
-    public void add(AbstractTask task) throws IOException {
+    public void add(AbstractTask task) throws ManagerSaveException {
         if (task instanceof SubTask) {
             EpicTask epicForSubTask = (EpicTask) taskMap.get(((SubTask) task).getEpicTaskId());
             epicForSubTask.addSubTask(task.getTaskId());
@@ -43,7 +44,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public AbstractTask getTask(int id) throws IOException {
+    public AbstractTask getTask(int id) throws NoSuchElementException, ManagerSaveException {
         if (taskMap.containsKey(id)) {
             historyManager.addTask(taskMap.get(id));
             return taskMap.get(id);
@@ -67,7 +68,7 @@ public class InMemoryTaskManager implements TaskManager {
         id = 1;
     }
 
-    public void updateTaskStatus(int id, TaskStatus status) {
+    public void updateTaskStatus(int id, TaskStatus status) throws ManagerSaveException, NoSuchElementException {
         if (taskMap.get(id) instanceof Task) {
             updateSimpleTaskStatus((Task) taskMap.get(id) , status);
         } else if (taskMap.get(id) instanceof EpicTask) {
@@ -113,7 +114,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deteteTask(int id) throws IOException {
+    public void deteteTask(int id) throws NoSuchElementException, ManagerSaveException {
         if (taskMap.containsKey(id)) {
             if (taskMap.get(id) instanceof EpicTask) {
                 for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {
@@ -128,7 +129,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    public List<AbstractTask> history() {
+    public List<AbstractTask> history() throws NoSuchElementException {
         return historyManager.getHistory();
     }
 

@@ -1,6 +1,7 @@
 package main;
 
 import manager.*;
+import myexception.ManagerSaveException;
 import taskmodel.*;
 import java.io.IOException;
 
@@ -36,7 +37,7 @@ public class Main {
         }
     }
 
-    private static void createTask() throws IOException {
+    private static void createTask() throws ManagerSaveException {
         manager.add(new Task("Убрать за котом",
                 "Необходимо убрать лоток за котом, помыть его и насыпать новго наполнителя",
                 manager.setIdNumeration(), TaskStatus.NEW));

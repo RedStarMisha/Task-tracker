@@ -23,8 +23,8 @@ public class Restorer {
      * @param fileBacketTaskManager
      * @throws IOException
      */
-    public static void dataLoader(Path path, InMemoryTaskManager fileBacketTaskManager) {
-        try {
+    public static void dataLoader(Path path, InMemoryTaskManager fileBacketTaskManager) throws ManagerSaveException {
+
             try (BufferedReader bufferedReader = new BufferedReader(new FileReader(path.toString()))) {
                 boolean historyPartInFile = false;
                 while (bufferedReader.ready()) {
@@ -35,9 +35,6 @@ public class Restorer {
             } catch (Exception e) {
                 throw new ManagerSaveException("База задач не была загружена из файла");
             }
-        } catch (ManagerSaveException m) {
-            System.out.println("Ошибка: " + m.getMessage());
-        }
     }
 
     /**
