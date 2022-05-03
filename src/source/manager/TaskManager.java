@@ -1,9 +1,3 @@
-package manager;
-
-import myexception.ManagerSaveException;
-import taskmodel.AbstractTask;
-import taskmodel.TaskStatus;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

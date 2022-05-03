@@ -1,9 +1,7 @@
-package manager;
-
-import mylist.MyLinkedList;
-import taskmodel.AbstractTask;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class InMemoryHistoryManager implements HistoryManager{
     private MyLinkedList historyList = new MyLinkedList();

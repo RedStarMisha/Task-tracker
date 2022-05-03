@@ -1,5 +1,3 @@
-package taskmodel;
-
 public class SubTask extends AbstractTask{
     private final int epicTaskId;
 

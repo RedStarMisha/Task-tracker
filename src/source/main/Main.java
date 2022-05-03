@@ -1,11 +1,3 @@
-package main;
-
-import manager.*;
-import myexception.ManagerSaveException;
-import taskmodel.*;
-import java.io.IOException;
-
-
 /**
  * Прошу дополнительно посмотреть верность(а скорее неверность) применение исключений.
  * Я в этой теме не совсем хорошо разобрался.
@@ -15,9 +7,9 @@ import java.io.IOException;
 public class Main {
     static TaskManager manager;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
         try {
-            manager = Managers.getFileManager();
+            manager = Managers.getDefault();
             createTask();
             manager.getTask(3);
             System.out.println(manager.history());
@@ -47,10 +39,10 @@ public class Main {
         manager.add(new EpicTask("Убраться на кухне",
                 "Необходимо провести полную уборку кухни", manager.setIdNumeration(), TaskStatus.NEW));
         manager.add(new SubTask("Помыть посуду", "Посуда должна быть чистой",
-                manager.setIdNumeration(), TaskStatus.NEW,
+                manager.setIdNumeration(), TaskStatus.IN_PROGRESS,
                 3));
         manager.add(new SubTask("Убрать со стола",
-                "Убрать грязную посуду, стереть со стола", manager.setIdNumeration(), TaskStatus.NEW,
+                "Убрать грязную посуду, стереть со стола", manager.setIdNumeration(), TaskStatus.DONE,
                 3));
         manager.add(new EpicTask("Убраться в спальне",
                 "Провести быструю уборку в спальной комнате", manager.setIdNumeration(), TaskStatus.NEW));

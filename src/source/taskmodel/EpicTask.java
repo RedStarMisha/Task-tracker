@@ -1,5 +1,3 @@
-package taskmodel;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +37,7 @@ public class EpicTask extends AbstractTask {
 
     @Override
     public String toString() {
-        String epicInfo = super.toString() + ".";
+        String epicInfo = super.toString() + ".";// + String.join("," , subTaskListId.toString());
         for (int i = 0; i < subTaskListId.size(); i++) {
             epicInfo += (i == subTaskListId.size() - 1) ? subTaskListId.get(i) : subTaskListId.get(i) + ",";
         }

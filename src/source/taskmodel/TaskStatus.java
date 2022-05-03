@@ -1,5 +1,3 @@
-package taskmodel;
-
 public enum TaskStatus {
     NEW,
     IN_PROGRESS,

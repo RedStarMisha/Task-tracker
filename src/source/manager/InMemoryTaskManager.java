@@ -1,9 +1,3 @@
-package manager;
-
-import filemanagment.Restorer;
-import myexception.ManagerSaveException;
-import taskmodel.*;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,12 +29,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void add(AbstractTask task) throws ManagerSaveException {
-        if (task instanceof SubTask) {
-            EpicTask epicForSubTask = (EpicTask) taskMap.get(((SubTask) task).getEpicTaskId());
-            epicForSubTask.addSubTask(task.getTaskId());
-        }
         taskMap.put(task.getTaskId(), task);
+        if (task instanceof SubTask) {
+            addSubTask((SubTask)task);
+        }
         System.out.println("Задача '" + task.getTaskName() + "' добавлена, id = " + task.getTaskId());
+    }
+
+    private void addSubTask(SubTask task) {
+        EpicTask epicForSubTask = (EpicTask) taskMap.get(task.getEpicTaskId());
+        epicForSubTask.addSubTask(task.getTaskId());
+        epicStatusChecker(task.getEpicTaskId(), task.getTaskStatus());
     }
 
     @Override
@@ -90,26 +89,31 @@ public class InMemoryTaskManager implements TaskManager {
         taskMap.replace(epicTask.getTaskId(), new EpicTask(epicTask, status));
     }
 
-    private void updateSubTaskStatus(SubTask subTask, TaskStatus status) {
-        taskMap.replace(subTask.getTaskId(), new SubTask(subTask, status));
-        epicStatusChecker(subTask.getEpicTaskId(), status);
+    private void updateSubTaskStatus(SubTask subTask, TaskStatus statusForNewSubTask) {
+        taskMap.replace(subTask.getTaskId(), new SubTask(subTask, statusForNewSubTask));
+        epicStatusChecker(subTask.getEpicTaskId(), statusForNewSubTask);
     }
 
-    private void epicStatusChecker (Integer epicId, TaskStatus status) {
-        boolean epicDoneOrNot = true;
+    private void epicStatusChecker (Integer epicId, TaskStatus statusForNewSubTask) {
         EpicTask epicForSubTask = (EpicTask) taskMap.get(epicId);
-        if (status != TaskStatus.NEW
-                && epicForSubTask.getTaskStatus() == TaskStatus.NEW) {
-            updateEpicTaskStatus(epicForSubTask, TaskStatus.IN_PROGRESS);
-            return;
-        }
-        for (int subTaskId : epicForSubTask.getSubTaskListId()) {
-            if (taskMap.get(subTaskId).getTaskStatus() != TaskStatus.DONE) {
-                epicDoneOrNot = false;
+        if (epicForSubTask.getTaskStatus() != statusForNewSubTask) {
+            boolean statusNew = true;
+            boolean statusDone = true;
+            for (int subTaskId : ((EpicTask) taskMap.get(epicId)).getSubTaskListId()) {
+                if (taskMap.get(subTaskId).getTaskStatus() != TaskStatus.NEW) {
+                    statusNew = false;
+                }
+                if (taskMap.get(subTaskId).getTaskStatus() != TaskStatus.DONE){
+                    statusDone = false;
+                }
             }
-        }
-        if (epicDoneOrNot) {
-            updateEpicTaskStatus(epicForSubTask, TaskStatus.DONE);
+            if (statusNew) {
+                updateEpicTaskStatus(epicForSubTask, TaskStatus.NEW);
+            } else if(statusDone) {
+                updateEpicTaskStatus(epicForSubTask, TaskStatus.DONE);
+            } else {
+                updateEpicTaskStatus(epicForSubTask, TaskStatus.IN_PROGRESS);
+            }
         }
     }
 

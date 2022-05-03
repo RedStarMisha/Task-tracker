@@ -1,13 +1,7 @@
-package manager;
-
-import filemanagment.Restorer;
-import myexception.ManagerSaveException;
-import taskmodel.*;
-
-import java.io.*;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 public class FileBacketTaskManager extends InMemoryTaskManager implements Saveable {
@@ -41,14 +35,22 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     @Override
     public void add(AbstractTask task) throws ManagerSaveException {
         super.add(task);
-        save();
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public AbstractTask getTask(int id) throws ManagerSaveException, NoSuchElementException {
         if (taskMap.containsKey(id)) {
             historyManager.addTask(taskMap.get(id));
-            save();
+            try {
+                save();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             return taskMap.get(id);
         }
         throw new NoSuchElementException("Задачи с таким id не существует");
@@ -57,32 +59,46 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     @Override
     public void deteteTask(int id) throws NoSuchElementException, ManagerSaveException {
         super.deteteTask(id);
-        save();
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void updateTaskStatus(int id, TaskStatus status) throws ManagerSaveException {
         super.updateTaskStatus(id, status);
-        save();
+        try {
+            save();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
      * Метод сохраняет список задач и историю запросов
      * в файл
      */
-    public void save() throws ManagerSaveException {
+    public void save() throws ManagerSaveException, IOException {
             try (Writer writer = new FileWriter(path.toString())) {
-                writer.write("typetask.id.name.description.status.id epic/subtask\n");
-                for (AbstractTask task : taskMap.values()) {
-                    writer.write(task.toString() + "\n");
-                }
-                if (history() != null) {
-                    writer.write("\nrequesthistory\n");
-                    for (int i = 0; i < history().size(); i++) {
-                        writer.write(i == history().size() - 1 ?
-                                String.valueOf(history().get(i).getTaskId()) : history().get(i).getTaskId() + ",");
+                Saveable saveTask = () -> {
+                    writer.write("typetask.id.name.description.status.id epic/subtask\n");
+                    for (AbstractTask task : taskMap.values()) {
+                        writer.write(task.toString() + "\n");
                     }
-                }
+                };
+                Saveable saveRequestHistory = () -> {
+                    if (history() != null) {
+                        writer.write("\nrequesthistory\n");
+                        for (int i = 0; i < history().size(); i++) {
+                            writer.write(i == history().size() - 1 ?
+                                    String.valueOf(history().get(i).getTaskId()) : history().get(i).getTaskId() + ",");
+                        }
+                    }
+                };
+                saveTask.save();
+                saveRequestHistory.save();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 throw new ManagerSaveException("Данные не были сохранены");

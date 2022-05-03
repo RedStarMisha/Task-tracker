@@ -1,5 +1,3 @@
-package taskmodel;
-
 public abstract class AbstractTask {
     protected final String taskName;
     protected final String tastDescription;
