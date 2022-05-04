@@ -1,15 +1,23 @@
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public abstract class AbstractTask {
     protected final String taskName;
     protected final String tastDescription;
     protected final int taskId;
     protected TaskStatus taskStatus;
     protected TaskType taskType;
+    Duration duration;
+    LocalDateTime startTime;
 
-    public AbstractTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus) {
+
+    public AbstractTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus, LocalDateTime startTime, Duration duration) {
         this.taskName = taskName;
         this.tastDescription = tastDescription;
         this.taskId = taskId;
         this.taskStatus = tastStatus;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public AbstractTask(AbstractTask task, TaskStatus tastStatus) {
@@ -34,6 +42,10 @@ public abstract class AbstractTask {
     public TaskStatus getTaskStatus() {
         return taskStatus;
     }
+
+//    public LocalDateTime getEndTime() {
+//
+//    }
 
     @Override
     public String toString() {

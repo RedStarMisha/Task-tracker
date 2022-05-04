@@ -2,6 +2,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.NoSuchElementException;
 
 public class FileBacketTaskManager extends InMemoryTaskManager implements Saveable {
@@ -11,8 +12,16 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      * @param historyManager
      * @throws Exception
      */
+    final Path path = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
+
     public FileBacketTaskManager(HistoryManager historyManager) throws Exception {
         super(historyManager);
+        fileRecoveryChecker();
+    }
+
+    public FileBacketTaskManager(HistoryManager historyManager, Path path) throws Exception {
+        super(historyManager);
+        fileRecoveryFromPath(path);
     }
 
     /**
@@ -23,7 +32,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      *
      * @throws IOException
      */
-    @Override
+
     protected void fileRecoveryChecker() throws IOException, ManagerSaveException {
         if (!Files.exists(path)) {
             Files.createFile(path);
@@ -32,8 +41,13 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
         }
     }
 
+    protected void fileRecoveryFromPath(Path path) throws ManagerSaveException {
+            Restorer.dataLoader(path, this);
+
+    }
+
     @Override
-    public void add(AbstractTask task) throws ManagerSaveException {
+    public void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException {
         super.add(task);
         try {
             save();
@@ -91,14 +105,23 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
                 Saveable saveRequestHistory = () -> {
                     if (history() != null) {
                         writer.write("\nrequesthistory\n");
+                        StringBuilder hist = new StringBuilder();
                         for (int i = 0; i < history().size(); i++) {
-                            writer.write(i == history().size() - 1 ?
+                            hist.append(i == history().size() - 1 ?
                                     String.valueOf(history().get(i).getTaskId()) : history().get(i).getTaskId() + ",");
+                            //writer.write(i == history().size() - 1 ?
+                                    //String.valueOf(history().get(i).getTaskId()) : history().get(i).getTaskId() + ",");
                         }
+                        writer.write(hist.toString());
                     }
                 };
                 saveTask.save();
-                saveRequestHistory.save();
+//                try {
+                    saveRequestHistory.save();
+//                } catch (NoSuchElementException e) {
+//                    System.out.println("Список запросов пуст");
+//                }
+
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 throw new ManagerSaveException("Данные не были сохранены");

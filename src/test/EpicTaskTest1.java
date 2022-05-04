@@ -13,7 +13,7 @@ class EpicTaskTest1 {
     }
 
     public void createTwoSubTaskWithStatus(TaskStatus fitstStatus, TaskStatus secondStatus)
-            throws ManagerSaveException {
+            throws ManagerSaveException, AddEmptyElementException {
         inMemoryTaskManager.add(new SubTask("Наполнить ванную", "Температура должна быть норм",
                 inMemoryTaskManager.setIdNumeration(), fitstStatus, 1));
         inMemoryTaskManager.add(new SubTask("Принести полотенце", "Выбрать самое чистое полотенце",

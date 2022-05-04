@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface TaskManager {
 
-    void add(AbstractTask task) throws ManagerSaveException;
+    void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException;
 
     AbstractTask getTask(int id) throws Exception;
 

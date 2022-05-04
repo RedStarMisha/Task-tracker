@@ -62,9 +62,8 @@ public class MyLinkedList<T> {
     }
 
     public List<T> toArrayList() throws NoSuchElementException {
-        try{
             if (isEmpty()) {
-                throw new NoSuchElementException("Список пуст");
+                return new ArrayList<>();
             }
             List<T> convertedToArrayList = new ArrayList<>();
             Node<T> node = head;
@@ -74,10 +73,6 @@ public class MyLinkedList<T> {
             }
             convertedToArrayList.add(node.element);
             return convertedToArrayList;
-        } catch (NoSuchElementException e){
-            System.out.println(e.getMessage());
-            return null;
-        }
     }
 
     public int size() {
@@ -122,11 +117,21 @@ public class MyLinkedList<T> {
      */
     private void redefinitionNodeWhenDeleting (Node deleteNode) {
         if (deleteNode.previous == null) {
-            head = deleteNode.next;
-            head.previous = null;
+            if (size > 1) {
+                head = deleteNode.next;
+                head.previous = null;
+            } else {
+                head = null;
+            }
         } else if (deleteNode.next == null){
-            tail = deleteNode.previous.equals(head) ? null : deleteNode.previous;
-            tail.next = null;
+            if (size > 2) {
+                tail = deleteNode.previous;
+                tail.next = null;
+            } else {
+                tail = null;
+            }
+//            tail = deleteNode.previous.equals(head) ? null : deleteNode.previous;
+//            tail.next = null;
         } else {
             deleteNode.next.previous = deleteNode.previous;
             deleteNode.previous.next = deleteNode.next;

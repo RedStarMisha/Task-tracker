@@ -11,29 +11,24 @@ public class InMemoryTaskManager implements TaskManager {
     private int id = 1;
     protected Map<Integer, AbstractTask> taskMap = new HashMap<>();
     protected static HistoryManager historyManager;
-    Path path = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
     public static HistoryManager getHistoryManager() {
         return historyManager;
     }
 
-    public InMemoryTaskManager(HistoryManager historyManager) throws IOException, ManagerSaveException {
+    public InMemoryTaskManager(HistoryManager historyManager) {
         this.historyManager = historyManager;
-        fileRecoveryChecker();
-    }
-
-    protected void fileRecoveryChecker() throws IOException, ManagerSaveException {
-        if (Files.exists(path)) {
-            Restorer.dataLoader(path , this);
-        }
     }
 
     @Override
-    public void add(AbstractTask task) throws ManagerSaveException {
-        taskMap.put(task.getTaskId(), task);
-        if (task instanceof SubTask) {
-            addSubTask((SubTask)task);
-        }
-        System.out.println("Задача '" + task.getTaskName() + "' добавлена, id = " + task.getTaskId());
+    public void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException {
+            if (task == null) {
+                throw new AddEmptyElementException("Нельзя добавить пустую задачу");
+            }
+            taskMap.put(task.getTaskId(), task);
+            if (task instanceof SubTask) {
+                addSubTask((SubTask)task);
+            }
+            System.out.println("Задача '" + task.getTaskName() + "' добавлена, id = " + task.getTaskId());
     }
 
     private void addSubTask(SubTask task) {
@@ -44,11 +39,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public AbstractTask getTask(int id) throws NoSuchElementException, ManagerSaveException {
-        if (taskMap.containsKey(id)) {
-            historyManager.addTask(taskMap.get(id));
-            return taskMap.get(id);
-        }
-        throw new NoSuchElementException("Задачи с таким id не существует");
+            if (taskMap.containsKey(id)) {
+                historyManager.addTask(taskMap.get(id));
+                return taskMap.get(id);
+            }
+                throw new NoSuchElementException("Задачи с таким id не существует");
     }
 
     @Override
@@ -58,6 +53,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int setIdNumeration() {
+        if (id == Integer.MAX_VALUE) {
+            throw new ArrayIndexOutOfBoundsException("Список задач заполнен");
+        }
         return id++;
     }
 
@@ -68,17 +66,17 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void updateTaskStatus(int id, TaskStatus status) throws ManagerSaveException, NoSuchElementException {
-        if (taskMap.get(id) instanceof Task) {
-            updateSimpleTaskStatus((Task) taskMap.get(id) , status);
-        } else if (taskMap.get(id) instanceof EpicTask) {
-            if (taskMap.get(id).getTaskStatus() != status) {
-                System.out.println("Сначала обновите статус подзадач");
+            if (taskMap.get(id) instanceof Task) {
+                updateSimpleTaskStatus((Task) taskMap.get(id) , status);
+            } else if (taskMap.get(id) instanceof EpicTask) {
+                if (taskMap.get(id).getTaskStatus() != status) {
+                    System.out.println("Сначала обновите статус подзадач");
+                }
+            } else if (taskMap.get(id) instanceof SubTask) {
+                updateSubTaskStatus((SubTask) taskMap.get(id), status);
+            } else {
+                throw new NoSuchElementException("Задачи с таким id не существует");
             }
-        } else if (taskMap.get(id) instanceof SubTask) {
-            updateSubTaskStatus((SubTask) taskMap.get(id), status);
-        } else {
-            throw new NoSuchElementException("Задачи с таким id не существует");
-        }
     }
 
     private void updateSimpleTaskStatus(Task simpleTask, TaskStatus status) {
@@ -119,18 +117,18 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deteteTask(int id) throws NoSuchElementException, ManagerSaveException {
-        if (taskMap.containsKey(id)) {
-            if (taskMap.get(id) instanceof EpicTask) {
-                for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {
-                    taskMap.remove(subTaskid);
-                    historyManager.remove(subTaskid);
+            if (taskMap.containsKey(id)) {
+                if (taskMap.get(id) instanceof EpicTask) {
+                    for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {
+                        taskMap.remove(subTaskid);
+                        historyManager.remove(subTaskid);
+                    }
                 }
+                taskMap.remove(id);
+                historyManager.remove(id);
+            } else {
+                throw new NoSuchElementException("Задачи с таким id не существует");
             }
-            taskMap.remove(id);
-            historyManager.remove(id);
-        } else {
-            throw new NoSuchElementException("Задачи с таким id не существует");
-        }
     }
 
     public List<AbstractTask> history() throws NoSuchElementException {
