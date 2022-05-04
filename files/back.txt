@@ -1,0 +1,6 @@
+typetask.id.name.description.status.id epic/subtask
+Task.1.Приготовить ужин.Запечь рыбу в духовке.NEW
+EpicTask.2.Убраться на кухне.Необходимо провести полную уборку кухни.NEW.
+
+requesthistory
+1,2
