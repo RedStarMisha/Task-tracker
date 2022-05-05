@@ -41,8 +41,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (epicTask.getDuration() == null && epicTask.getStartTime() == null) {
                 epicTask.setDuration(task.getDuration());
                 epicTask.setStartTime(task.getStartTime());
-                //LocalDateTime t = epicTask.getStartTime().
-                epicTask.setEndTime(epicTask.getStartTime().plusMinutes(epicTask.getDuration().toMinutes()));
+                epicTask.setEndTime(epicTask.getStartTime().plus(task.getDuration()));
             } else {
                 if (task.getStartTime().isBefore(epicTask.getStartTime())) {
                     epicTask.setStartTime(task.getStartTime());
