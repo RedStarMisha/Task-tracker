@@ -59,6 +59,9 @@ public class EpicTask extends AbstractTask {
 
     @Override
     public Duration getDuration() {
+        if (startTime == null) {
+            return null;
+        }
         return Duration.between(startTime, endTime);
     }
 

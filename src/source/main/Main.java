@@ -1,6 +1,3 @@
-import java.time.Duration;
-import java.time.LocalDateTime;
-
 /**
  * Прошу дополнительно посмотреть верность(а скорее неверность) применение исключений.
  * Я в этой теме не совсем хорошо разобрался.
@@ -13,8 +10,7 @@ public class Main {
     public static void main(String[] args) throws ManagerSaveException, AddEmptyElementException {
         try {
             manager = Managers.getDefault();
-
-               createTask();
+           createTask();
             System.out.println(manager.getSortedTask());
 //            manager.getTask(3);
 //            System.out.println(manager.history());
@@ -48,12 +44,12 @@ public class Main {
         manager.add(new SubTask("Убрать со стола",
                 "Убрать грязную посуду, стереть со стола", manager.setIdNumeration(), TaskStatus.DONE,
                 "15-01-2022, 11:50",10,2));
-//        manager.add(new EpicTask("Убраться в спальне",
-//                "Провести быструю уборку в спальной комнате", manager.setIdNumeration(), TaskStatus.NEW));
-//        manager.add(new SubTask("Убрать постель",
-//                "Убрать одеяла и застелить постель", manager.setIdNumeration(), TaskStatus.NEW,
-//                "14.01.2022, 09.00",5, 6));
-//        manager.add(new EpicTask("Приготовить ужин",
-//                "Приготовить ужин на двоих", manager.setIdNumeration(), TaskStatus.NEW));
+        manager.add(new EpicTask("Убраться в спальне",
+                "Провести быструю уборку в спальной комнате", manager.setIdNumeration(), TaskStatus.NEW));
+        manager.add(new SubTask("Убрать постель",
+                "Убрать одеяла и застелить постель", manager.setIdNumeration(), TaskStatus.NEW,
+                "14-01-2022, 09:00",5, 5));
+        manager.add(new EpicTask("Приготовить ужин",
+                "Приготовить ужин на двоих", manager.setIdNumeration(), TaskStatus.NEW));
     }
 }

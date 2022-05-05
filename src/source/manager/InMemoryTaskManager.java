@@ -1,6 +1,3 @@
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 
@@ -25,7 +22,7 @@ public class InMemoryTaskManager implements TaskManager {
             throw new AddEmptyElementException("Нельзя добавить пустую задачу");
         }
         taskMap.put(task.getTaskId(), task);
-        sortedTask.add(task);
+        TaskSorter.add(sortedTask,task);
         if (task instanceof SubTask) {
             addSubTask((SubTask) task);
         }
@@ -44,7 +41,8 @@ public class InMemoryTaskManager implements TaskManager {
             if (epicTask.getDuration() == null && epicTask.getStartTime() == null) {
                 epicTask.setDuration(task.getDuration());
                 epicTask.setStartTime(task.getStartTime());
-                epicTask.setEndTime(epicTask.getStartTime().plus(epicTask.getDuration()));
+                //LocalDateTime t = epicTask.getStartTime().
+                epicTask.setEndTime(epicTask.getStartTime().plusMinutes(epicTask.getDuration().toMinutes()));
             } else {
                 if (task.getStartTime().isBefore(epicTask.getStartTime())) {
                     epicTask.setStartTime(task.getStartTime());
@@ -57,6 +55,7 @@ public class InMemoryTaskManager implements TaskManager {
                 epicTask.setDuration(Duration.between(epicTask.getStartTime(),epicTask.getEndTime()));
             }
         }
+        TaskSorter.add(sortedTask,epicTask);
     }
 
     @Override
