@@ -12,24 +12,31 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     Task task;
     EpicTask epicTask;
     SubTask subTask;
+    SubTask subTaskTwo;
 
     abstract void createTaskManager() throws Exception;
 
-    void createAndAddThreeTask() throws ManagerSaveException, AddEmptyElementException {
+    void createAndAddThreeTaskWithoutDate() throws Exception {
         task = new Task("Приготовить ужин", "Запечь рыбу в духовке",
-                taskManager.setIdNumeration(), TaskStatus.NEW);
+                1, TaskStatus.NEW);
         epicTask = new EpicTask("Убраться на кухне",
-                "Необходимо провести полную уборку кухни", taskManager.setIdNumeration(), TaskStatus.NEW);
+                "Необходимо провести полную уборку кухни", 2, TaskStatus.NEW);
         subTask = new SubTask("Помыть посуду", "Посуда должна быть чистой",
-                taskManager.setIdNumeration(), TaskStatus.IN_PROGRESS,2);
+                3, TaskStatus.IN_PROGRESS,2);
         taskManager.add(task);
         taskManager.add(epicTask);
         taskManager.add(subTask);
     }
 
 
+
     @Test
-    void shouldAddThreeTask() throws ManagerSaveException, AddEmptyElementException {
+    void shouldGetAllTaskForEmptyTaskMap() throws Exception {
+        Assertions.assertTrue(taskManager.getAllTask().isEmpty());
+    }
+
+    @Test
+    void shouldAddThreeTask() throws Exception {
         Assertions.assertEquals(3,taskManager.getAllTask().size());
         Assertions.assertNotNull(taskManager.getAllTask());
         Assertions.assertEquals(task, taskManager.getAllTask().get(1));
@@ -50,17 +57,15 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void shouldGetThreeTaskAndRecordInHistory() throws Exception {
         Assertions.assertEquals(task , taskManager.getTask(1));
-        System.out.println(taskManager.history().size());
-        Assertions.assertEquals(task, taskManager.history().get(2));
+        Assertions.assertEquals(task, taskManager.history().get(taskManager.history().size() - 1));
         Assertions.assertEquals(epicTask , taskManager.getTask(2));
-        System.out.println(taskManager.history().size());
-        Assertions.assertEquals(epicTask, taskManager.history().get(2));
+        Assertions.assertEquals(epicTask, taskManager.history().get(taskManager.history().size() - 1));
         Assertions.assertEquals(subTask , taskManager.getTask(3));
-        Assertions.assertEquals(subTask, taskManager.history().get(2));
+        Assertions.assertEquals(subTask, taskManager.history().get(taskManager.history().size() - 1));
     }
 
     @Test
-    void shouldGetTaskWithIncorrectId() throws ManagerSaveException, AddEmptyElementException {
+    void shouldGetTaskWithIncorrectId() throws Exception {
         final NoSuchElementException exceptionWithMaxInt = Assertions.assertThrows(
                 NoSuchElementException .class,
                 () -> taskManager.getTask(0));
@@ -101,7 +106,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
 
     @Test
-    void shouldGetAllTask() throws ManagerSaveException, AddEmptyElementException {
+    void shouldGetAllTask() throws Exception {
         Map<Integer, AbstractTask> map = new HashMap<>();
         map.put(1,task);
         map.put(2,epicTask);
@@ -113,25 +118,20 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldGetAllTaskForEmptyTaskMap() throws ManagerSaveException, AddEmptyElementException {
-        Assertions.assertTrue(taskManager.getAllTask().isEmpty());
-    }
-
-    @Test
-    void shouldClearTaskMap() throws ManagerSaveException, AddEmptyElementException {
+    void shouldClearTaskMap() throws Exception {
         taskManager.clearTaskMap();
         Assertions.assertTrue(taskManager.getAllTask().isEmpty());
     }
 
     @Test
-    void shouldDeteteSimpleTaskWithIdOne() throws IOException, ManagerSaveException, AddEmptyElementException {
+    void shouldDeteteSimpleTaskWithIdOne() throws Exception {
         taskManager.deteteTask(1);
         Assertions.assertFalse(taskManager.getAllTask().containsKey(1));
         Assertions.assertEquals(2,taskManager.getAllTask().size());
     }
 
     @Test
-    void shouldDeteteEpicTaskWithIdTwo() throws IOException, ManagerSaveException, AddEmptyElementException {
+    void shouldDeteteEpicTaskWithIdTwo() throws Exception {
         taskManager.deteteTask(2);
         Assertions.assertFalse(taskManager.getAllTask().containsKey(2));
         Assertions.assertFalse(taskManager.getAllTask().containsKey(3));
@@ -139,7 +139,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldDeleteTaskStatusForNonExistingId() throws ManagerSaveException, IOException {
+    void shouldDeleteTaskForNonExistingId() throws ManagerSaveException, IOException {
         NoSuchElementException exception = Assertions.assertThrows(
                 NoSuchElementException.class,
                 () -> taskManager.deteteTask(0)
@@ -147,9 +147,17 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Assertions.assertEquals("Задачи с таким id не существует",exception.getMessage());
     }
 
+    @Test
+    void shouldDeleteSubtaskWhenDeleteEpicInHistoryManager() throws Exception {
+        taskManager.getTask(1);
+        taskManager.getTask(2);
+        taskManager.getTask(3);
+        taskManager.deteteTask(2);
+        Assertions.assertEquals(1,taskManager.history().size());
+    }
 
     @Test
-    void shouldReturnEpicIdFromSubTask() throws ManagerSaveException, AddEmptyElementException {
+    void shouldReturnEpicIdFromSubTask() throws Exception {
         Assertions.assertEquals(epicTask.getTaskId(),subTask.getEpicTaskId());
     }
 

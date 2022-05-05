@@ -128,6 +128,7 @@ public class MyLinkedList<T> {
                 tail = deleteNode.previous;
                 tail.next = null;
             } else {
+                head.next = null;
                 tail = null;
             }
 //            tail = deleteNode.previous.equals(head) ? null : deleteNode.previous;

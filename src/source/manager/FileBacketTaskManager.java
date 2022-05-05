@@ -14,9 +14,9 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      */
     final Path path = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
 
-    public FileBacketTaskManager(HistoryManager historyManager) throws Exception {
+    public FileBacketTaskManager(HistoryManager historyManager, boolean shouldRecovery) throws Exception {
         super(historyManager);
-        fileRecoveryChecker();
+        fileRecoveryChecker(shouldRecovery);
     }
 
     public FileBacketTaskManager(HistoryManager historyManager, Path path) throws Exception {
@@ -33,10 +33,11 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      * @throws IOException
      */
 
-    protected void fileRecoveryChecker() throws IOException, ManagerSaveException {
+    protected void fileRecoveryChecker(boolean shouldRecovery) throws IOException, ManagerSaveException {
         if (!Files.exists(path)) {
             Files.createFile(path);
-        } else {
+        }
+        if (shouldRecovery && Files.exists(path)) {
             Restorer.dataLoader(path, this);
         }
     }
@@ -97,10 +98,13 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     public void save() throws ManagerSaveException, IOException {
             try (Writer writer = new FileWriter(path.toString())) {
                 Saveable saveTask = () -> {
-                    writer.write("typetask.id.name.description.status.id epic/subtask\n");
+                    StringBuilder allTask = new StringBuilder();
+                    writer.write("typetask.id.name.description.status.execution start time." +
+                            "task duration_min.id epic/subtask\n");
                     for (AbstractTask task : taskMap.values()) {
-                        writer.write(task.toString() + "\n");
+                        allTask.append(task.toString() + "\n");
                     }
+                    writer.write(allTask + "\n");
                 };
                 Saveable saveRequestHistory = () -> {
                     if (history() != null) {
@@ -109,18 +113,14 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
                         for (int i = 0; i < history().size(); i++) {
                             hist.append(i == history().size() - 1 ?
                                     String.valueOf(history().get(i).getTaskId()) : history().get(i).getTaskId() + ",");
-                            //writer.write(i == history().size() - 1 ?
-                                    //String.valueOf(history().get(i).getTaskId()) : history().get(i).getTaskId() + ",");
                         }
                         writer.write(hist.toString());
+                    } else {
+                        writer.write("");
                     }
                 };
                 saveTask.save();
-//                try {
-                    saveRequestHistory.save();
-//                } catch (NoSuchElementException e) {
-//                    System.out.println("Список запросов пуст");
-//                }
+                saveRequestHistory.save();
 
             } catch (Exception e) {
                 System.out.println(e.getMessage());

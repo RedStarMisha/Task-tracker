@@ -1,6 +1,9 @@
-typetask.id.name.description.status.id epic/subtask
-Task.1.Приготовить ужин.Запечь рыбу в духовке.NEW
-EpicTask.2.Убраться на кухне.Необходимо провести полную уборку кухни.NEW.
+typetask.id.name.description.status.execution start time.task duration_min.id epic/subtask
+Task.1.Приготовить ужин.Запечь рыбу в духовке.NEW.12-01-2022, 16:00.50
+EpicTask.2.Убраться на кухне.Необходимо провести полную уборку кухни.IN_PROGRESS.13-01-2022, 15:00.1460.3,4
+SubTask.3.Помыть посуду.Посуда должна быть чистой.IN_PROGRESS.13-01-2022, 15:00.20.2
+SubTask.4.Помыть посуду.Посуда должна быть чистой.IN_PROGRESS.14-01-2022, 15:00.20.2
+
 
 requesthistory
-1,2
+1,3,4,2

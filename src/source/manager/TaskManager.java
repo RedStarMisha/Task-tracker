@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 public interface TaskManager {
 
@@ -20,4 +21,5 @@ public interface TaskManager {
 
     List<AbstractTask> history();
 
+    TreeSet<AbstractTask> getSortedTask();
 }

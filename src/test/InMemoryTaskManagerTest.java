@@ -11,8 +11,8 @@ public class InMemoryTaskManagerTest extends TaskManagerTest {
     }
 
     @Override  @Test
-    void shouldAddThreeTask() throws ManagerSaveException, AddEmptyElementException {
-        super.createAndAddThreeTask();
+    void shouldAddThreeTask() throws Exception {
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldAddThreeTask();
     }
 
@@ -24,32 +24,32 @@ public class InMemoryTaskManagerTest extends TaskManagerTest {
 
     @Override  @Test
     void shouldGetThreeTaskAndRecordInHistory() throws Exception {
-        super.createAndAddThreeTask();
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldGetThreeTaskAndRecordInHistory();
     }
 
     @Override @Test
-    void shouldGetTaskWithIncorrectId() throws ManagerSaveException, AddEmptyElementException {
-        super.createAndAddThreeTask();
+    void shouldGetTaskWithIncorrectId() throws Exception {
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldGetTaskWithIncorrectId();
     }
 
 
     @Override  @Test
     void shouldCheckNumeration() throws Exception {
-        super.createAndAddThreeTask();
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldCheckNumeration();
     }
 
     @Override  @Test
     void shouldUpdateTaskStatusInSimpleTask() throws Exception {
-        super.createAndAddThreeTask();
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldUpdateTaskStatusInSimpleTask();
     }
 
     @Override  @Test
     void shouldUpdateTaskStatusInSubTaskAndEpicTask() throws Exception {
-        super.createAndAddThreeTask();
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldUpdateTaskStatusInSubTaskAndEpicTask();
     }
 
@@ -59,42 +59,48 @@ public class InMemoryTaskManagerTest extends TaskManagerTest {
     }
 
     @Override  @Test
-    void shouldGetAllTask() throws ManagerSaveException, AddEmptyElementException {
-        super.createAndAddThreeTask();
+    void shouldGetAllTask() throws Exception {
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldGetAllTask();
     }
 
     @Test @Override
-    void shouldGetAllTaskForEmptyTaskMap() throws ManagerSaveException, AddEmptyElementException {
+    void shouldGetAllTaskForEmptyTaskMap() throws Exception {
         super.shouldGetAllTaskForEmptyTaskMap();
     }
 
     @Override  @Test
-    void shouldClearTaskMap() throws ManagerSaveException, AddEmptyElementException {
-        super.createAndAddThreeTask();
+    void shouldClearTaskMap() throws Exception {
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldClearTaskMap();
     }
 
     @Override  @Test
-    void shouldDeteteSimpleTaskWithIdOne() throws IOException, ManagerSaveException, AddEmptyElementException {
-        super.createAndAddThreeTask();
+    void shouldDeteteSimpleTaskWithIdOne() throws Exception {
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldDeteteSimpleTaskWithIdOne();
     }
 
     @Override  @Test
-    void shouldDeteteEpicTaskWithIdTwo() throws IOException, ManagerSaveException, AddEmptyElementException {
-        super.createAndAddThreeTask();
+    void shouldDeteteEpicTaskWithIdTwo() throws Exception {
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldDeteteEpicTaskWithIdTwo();
     }
 
+    @Override @Test
+    void shouldDeleteSubtaskWhenDeleteEpicInHistoryManager() throws Exception {
+        createAndAddThreeTaskWithoutDate();
+        super.shouldDeleteSubtaskWhenDeleteEpicInHistoryManager();
+    }
+
     @Override  @Test
-    void shouldReturnEpicIdFromSubTask() throws ManagerSaveException, AddEmptyElementException {
-        super.createAndAddThreeTask();
+    void shouldReturnEpicIdFromSubTask() throws Exception {
+        super.createAndAddThreeTaskWithoutDate();
         super.shouldReturnEpicIdFromSubTask();
     }
 
     @Test @Override
-    void shouldDeleteTaskStatusForNonExistingId () throws ManagerSaveException, IOException {
-        super.shouldDeleteTaskStatusForNonExistingId();
+    void shouldDeleteTaskForNonExistingId() throws ManagerSaveException, IOException {
+        super.shouldDeleteTaskForNonExistingId();
     }
 }

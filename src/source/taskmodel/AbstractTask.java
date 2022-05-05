@@ -1,5 +1,6 @@
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public abstract class AbstractTask {
     protected final String taskName;
@@ -7,17 +8,26 @@ public abstract class AbstractTask {
     protected final int taskId;
     protected TaskStatus taskStatus;
     protected TaskType taskType;
-    Duration duration;
-    LocalDateTime startTime;
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
 
-    public AbstractTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus, LocalDateTime startTime, Duration duration) {
+    public AbstractTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus,
+                        String startTime, long duration) throws Exception {
+        durationChecker(duration);
         this.taskName = taskName;
         this.tastDescription = tastDescription;
         this.taskId = taskId;
         this.taskStatus = tastStatus;
-        this.duration = duration;
-        this.startTime = startTime;
+        this.duration = Duration.ofMinutes(duration);
+        this.startTime = LocalDateTime.parse(startTime, Formater.FORMATTER_DATE);
+    }
+
+    public AbstractTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus) {
+        this.taskName = taskName;
+        this.tastDescription = tastDescription;
+        this.taskId = taskId;
+        this.taskStatus = tastStatus;
     }
 
     public AbstractTask(AbstractTask task, TaskStatus tastStatus) {
@@ -26,6 +36,13 @@ public abstract class AbstractTask {
         this.taskId = task.taskId;
         this.taskStatus = tastStatus;
     }
+
+    protected void durationChecker(long duration) {
+        if (duration <= 0) {
+            throw new IllegalArgumentException ("Длительность должна быть больше 0");
+        }
+    }
+
 
     public int getTaskId() {
         return taskId;
@@ -43,13 +60,34 @@ public abstract class AbstractTask {
         return taskStatus;
     }
 
-//    public LocalDateTime getEndTime() {
-//
-//    }
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return startTime.plus(duration);
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
 
     @Override
     public String toString() {
-        return taskType.toString() + "." + taskId + "." + taskName + "." + tastDescription + "." + taskStatus;
+        if (startTime != null) {
+            return taskType.toString() + "." + taskId + "." + taskName + "." + tastDescription + "." + taskStatus +
+                    "." + startTime.format(Formater.FORMATTER_DATE) + "." + duration.toMinutes();
+        } else {
+            return taskType.toString() + "." + taskId + "." + taskName + "." + tastDescription + "." + taskStatus;
+        }
     }
 
     @Override

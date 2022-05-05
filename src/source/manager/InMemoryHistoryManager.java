@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class InMemoryHistoryManager implements HistoryManager{
-    private MyLinkedList historyList = new MyLinkedList();
+    private MyLinkedList<AbstractTask> historyList = new MyLinkedList();
     private Map<Integer, AbstractTask> mapForFindTaskInList = new HashMap<>();
 
 

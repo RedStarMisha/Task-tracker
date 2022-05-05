@@ -8,8 +8,8 @@ public class Managers  {
         return new InMemoryTaskManager(getDefaultHistory());
     }
 
-    public static InMemoryTaskManager getFileManager() throws Exception {
-        return new FileBacketTaskManager(getDefaultHistory());
+    public static InMemoryTaskManager getFileManager(boolean shouldRecovery) throws Exception {
+        return new FileBacketTaskManager(getDefaultHistory(), shouldRecovery);
     }
 
 }

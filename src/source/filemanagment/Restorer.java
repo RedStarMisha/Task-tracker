@@ -2,6 +2,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,15 +66,49 @@ public class Restorer {
      * @param line
      * @param fileBacketTaskManager
      */
-    private static void taskMapLoader(String line, InMemoryTaskManager fileBacketTaskManager) {
+    private static void taskMapLoader(String line, InMemoryTaskManager fileBacketTaskManager) throws Exception {
         if (line.startsWith("typetask")) {
             return;
         }
         String[] history = line.split("\\.");
         Map<Integer, AbstractTask> taskMap = fileBacketTaskManager.getAllTask();
+        if (history.length > 6) {
+            mapLoaderWithDate(history, taskMap);
+        } else {
+            mapLoaderWithoutDate(history, taskMap);
+        }
+
+    }
+
+    private static void mapLoaderWithDate(String[] history , Map<Integer, AbstractTask> taskMap) throws Exception {
         if (history[0].equals("Task")) {
-            taskMap.put(Integer.parseInt(history[1]), new Task(history[2], history[3],
-                    Integer.parseInt(history[1]), TaskStatus.valueOf(history[4])));
+            taskMap.put(Integer.parseInt(history[1]), new Task(history[2], history[3], Integer.parseInt(history[1]),
+                    TaskStatus.valueOf(history[4]), history[5], Long.parseLong(history[6])));
+        } else if (history[0].equals("EpicTask")) {
+            if (history.length == 7) {
+                taskMap.put(Integer.parseInt(history[1]), new EpicTask(history[2], history[3],
+                        Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), history[5],
+                        Long.parseLong(history[6])));
+            } else {
+                List<Integer> subTaskList = new ArrayList<>();
+                for (String subTaskId : history[7].split(",")) {
+                    subTaskList.add(Integer.parseInt(subTaskId));
+                }
+                taskMap.put(Integer.parseInt(history[1]), new EpicTask(history[2], history[3],
+                        Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), history[5],
+                        Long.parseLong(history[6]), subTaskList));
+            }
+        } else if (history[0].equals("SubTask")) {
+            taskMap.put(Integer.parseInt(history[1]), new SubTask(history[2], history[3],
+                    Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), history[5],
+                    Long.parseLong(history[6]), Integer.parseInt(history[7]) ));
+        }
+    }
+
+    private static void mapLoaderWithoutDate(String[] history , Map<Integer, AbstractTask> taskMap) {
+        if (history[0].equals("Task")) {
+            taskMap.put(Integer.parseInt(history[1]), new Task(history[2], history[3], Integer.parseInt(history[1]),
+                    TaskStatus.valueOf(history[4])));
         } else if (history[0].equals("EpicTask")) {
             if (history.length == 5) {
                 taskMap.put(Integer.parseInt(history[1]), new EpicTask(history[2],

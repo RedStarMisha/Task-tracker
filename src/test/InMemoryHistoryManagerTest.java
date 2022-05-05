@@ -12,6 +12,8 @@ class InMemoryHistoryManagerTest {
     static Task task3;
     static Task task4;
     static Task task5;
+    static EpicTask epicTask;
+    static SubTask subTask;
 
 
     HistoryManager historyManager;
@@ -22,19 +24,22 @@ class InMemoryHistoryManagerTest {
     }
 
     @BeforeAll
-    static void createTask() {
+    static void createTask() throws Exception {
         task1 = new Task("Приготовить ужин", "Запечь рыбу в духовке",
-                1,TaskStatus.NEW);
+                1,TaskStatus.NEW, "12.01.2022, 16.00",30);
 
         task2 = new Task("Пострирать белье", "Белое",
-                2,TaskStatus.NEW);
+                2,TaskStatus.NEW, "13.01.2022, 20.00",120);
         task3 = new Task("Почистить обувь", "Черные туфли",
-                3,TaskStatus.NEW);
+                3,TaskStatus.NEW, "13.01.2022, 18.00",15);
         task4 = new Task("Помыть посуду", "Кострюли, сковородки",
-                4,TaskStatus.NEW);
+                4,TaskStatus.NEW, "12.01.2022, 12.00",20);
         task5 = new Task("Убраться на кухне",
-                "Необходимо провести полную уборку кухни", 5, TaskStatus.NEW);
-
+                "Необходимо провести полную уборку кухни", 5, TaskStatus.NEW, "12.01.2022, 13.00",40);
+        epicTask = new EpicTask("Сходить в магазин",
+                "Гипермаркет", 6, TaskStatus.NEW, "12.01.2022, 13.00",120);
+        subTask = new SubTask("Купить курочку",
+                "Петелинка", 7, TaskStatus.NEW, "12.01.2022, 13.20",15,6);
     }
 
     @Test
@@ -64,6 +69,7 @@ class InMemoryHistoryManagerTest {
         List<Task> localList = List.of(task2,task3);
         Assertions.assertIterableEquals(historyManager.getHistory(),localList);
     }
+
 
     @Test
     void shouldDeleteNonExistElement() {
