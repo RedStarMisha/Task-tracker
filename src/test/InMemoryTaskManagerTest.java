@@ -34,6 +34,16 @@ public class InMemoryTaskManagerTest extends TaskManagerTest {
         super.shouldGetTaskWithIncorrectId();
     }
 
+    @Override  @Test
+    void shouldGetAllTask() throws Exception {
+        super.createAndAddThreeTaskWithoutDate();
+        super.shouldGetAllTask();
+    }
+
+    @Test @Override
+    void shouldGetAllTaskForEmptyTaskMap() throws Exception {
+        super.shouldGetAllTaskForEmptyTaskMap();
+    }
 
     @Override  @Test
     void shouldCheckNumeration() throws Exception {
@@ -56,17 +66,6 @@ public class InMemoryTaskManagerTest extends TaskManagerTest {
     @Test @Override
     void shouldUpdateTaskStatusForNonExistingId() throws ManagerSaveException {
         super.shouldUpdateTaskStatusForNonExistingId();
-    }
-
-    @Override  @Test
-    void shouldGetAllTask() throws Exception {
-        super.createAndAddThreeTaskWithoutDate();
-        super.shouldGetAllTask();
-    }
-
-    @Test @Override
-    void shouldGetAllTaskForEmptyTaskMap() throws Exception {
-        super.shouldGetAllTaskForEmptyTaskMap();
     }
 
     @Override  @Test
@@ -93,14 +92,16 @@ public class InMemoryTaskManagerTest extends TaskManagerTest {
         super.shouldDeleteSubtaskWhenDeleteEpicInHistoryManager();
     }
 
+    @Test @Override
+    void shouldDeleteTaskForNonExistingId() throws ManagerSaveException, IOException {
+        super.shouldDeleteTaskForNonExistingId();
+    }
+
+
     @Override  @Test
     void shouldReturnEpicIdFromSubTask() throws Exception {
         super.createAndAddThreeTaskWithoutDate();
         super.shouldReturnEpicIdFromSubTask();
     }
 
-    @Test @Override
-    void shouldDeleteTaskForNonExistingId() throws ManagerSaveException, IOException {
-        super.shouldDeleteTaskForNonExistingId();
-    }
 }

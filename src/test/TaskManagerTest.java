@@ -111,6 +111,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         map.put(1,task);
         map.put(2,epicTask);
         map.put(3,subTask);
+        epicTask.taskStatus = TaskStatus.IN_PROGRESS;
         Assertions.assertEquals(map.size(),taskManager.getAllTask().size());
         for (Integer localId : map.keySet()) {
             Assertions.assertEquals(map.get(localId),taskManager.getAllTask().get(localId));

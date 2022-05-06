@@ -1,3 +1,6 @@
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 /**
  * Прошу дополнительно посмотреть верность(а скорее неверность) применение исключений.
  * Я в этой теме не совсем хорошо разобрался.
@@ -12,6 +15,7 @@ public class Main {
             manager = Managers.getDefault();
            createTask();
             System.out.println(manager.getSortedTask());
+
 //            manager.getTask(3);
 //            System.out.println(manager.history());
 //            manager.getTask(1);
@@ -39,7 +43,7 @@ public class Main {
                 "Необходимо провести полную уборку кухни", manager.setIdNumeration(), TaskStatus.NEW,
                 "15-01-2022, 11:00",20));
         manager.add(new SubTask("Помыть посуду", "Посуда должна быть чистой",
-                manager.setIdNumeration(), TaskStatus.IN_PROGRESS, "15-01-2022, 12:00",20,
+                manager.setIdNumeration(), TaskStatus.IN_PROGRESS, "12-01-2022, 16:05",40,
                 2));
         manager.add(new SubTask("Убрать со стола",
                 "Убрать грязную посуду, стереть со стола", manager.setIdNumeration(), TaskStatus.DONE,

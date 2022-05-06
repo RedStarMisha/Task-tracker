@@ -6,7 +6,22 @@ public class InMemoryTaskManager implements TaskManager {
     private int id = 1;
     protected Map<Integer, AbstractTask> taskMap = new HashMap<>();
     protected static HistoryManager historyManager;
-    private TreeSet<AbstractTask> sortedTask = new TreeSet<>(new TaskComparator());
+
+    private TreeSet<AbstractTask> sortedTask = new TreeSet<>((o1, o2) -> {
+        if (o1.getStartTime() == null && o2.getStartTime() == null) {
+            return o1.getTaskId() - o2.getTaskId();
+        }
+        if (o2.getStartTime() == null) {
+            return -1;
+        }
+        if (o1.getStartTime() == null) {
+            return 1;
+        }
+        if (Duration.between(o1.getStartTime(),o2.getStartTime()).toMinutes() == 0) {
+            return o1.getTaskId() - o2.getTaskId();
+        }
+        return (int)Duration.between(o1.getStartTime(),o2.getStartTime()).toMinutes();
+    });
 
     public static HistoryManager getHistoryManager() {
         return historyManager;
@@ -17,10 +32,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException {
+    public void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException, ExceptionTaskIntersection {
         if (task == null) {
             throw new AddEmptyElementException("Нельзя добавить пустую задачу");
         }
+        taskIntersectionChecker(task);
         taskMap.put(task.getTaskId(), task);
         TaskSorter.add(sortedTask,task);
         if (task instanceof SubTask) {
@@ -54,7 +70,18 @@ public class InMemoryTaskManager implements TaskManager {
                 epicTask.setDuration(Duration.between(epicTask.getStartTime(),epicTask.getEndTime()));
             }
         }
-        TaskSorter.add(sortedTask,epicTask);
+    }
+
+    private void taskIntersectionChecker(AbstractTask task) throws ExceptionTaskIntersection {
+        if (task instanceof EpicTask || task.getStartTime() == null) {
+            return;
+        }
+        AbstractTask lowerTask = sortedTask.lower(task);
+        AbstractTask higher = sortedTask.higher(task);
+        if (lowerTask != null && lowerTask.getEndTime().isAfter(task.getStartTime()) ||
+            higher != null && higher.getEndTime().isAfter(task.getStartTime())) {
+            throw new ExceptionTaskIntersection("Задачи пересекаются. Измените условия");
+        }
     }
 
     @Override

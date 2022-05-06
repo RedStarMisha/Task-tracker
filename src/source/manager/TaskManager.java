@@ -5,7 +5,7 @@ import java.util.TreeSet;
 
 public interface TaskManager {
 
-    void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException;
+    void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException, ExceptionTaskIntersection;
 
     AbstractTask getTask(int id) throws Exception;
 

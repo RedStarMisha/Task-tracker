@@ -48,7 +48,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     }
 
     @Override
-    public void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException {
+    public void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException, ExceptionTaskIntersection {
         super.add(task);
         try {
             save();
