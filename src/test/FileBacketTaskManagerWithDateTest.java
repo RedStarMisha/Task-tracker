@@ -1,14 +1,15 @@
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class FileBacketTaskManagerWithDateTest extends TaskManagerWithDateTest{
 
     @BeforeEach
     void createTaskManager() throws Exception {
-        taskManager = Managers.getFileManager(true);
+        taskManager = Managers.getFileManager();
     }
 
     @Override @Test
@@ -38,14 +39,16 @@ public class FileBacketTaskManagerWithDateTest extends TaskManagerWithDateTest{
         super.createAndAddThreeTaskWithDate();
         Path pathTest = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
         TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
-        Assertions.assertFalse(localTaskManager.getAllTask().isEmpty());
-        Assertions.assertEquals(taskManager.getTask(1).getStartTime(),
-                localTaskManager.getTask(1).getStartTime());
-        Assertions.assertEquals(taskManager.getTask(2).getStartTime(),
-                localTaskManager.getTask(2).getStartTime());
-        Assertions.assertEquals(taskManager.getTask(3).getStartTime(),
-                localTaskManager.getTask(3).getStartTime());
-        Assertions.assertEquals(taskManager.getTask(4).getStartTime(),
-                localTaskManager.getTask(4).getStartTime());
+        assertAll(
+                () -> assertFalse(localTaskManager.getAllTask().isEmpty()),
+                () -> assertEquals(taskManager.getTask(1).getStartTime(),
+                localTaskManager.getTask(1).getStartTime()),
+                () -> assertEquals(taskManager.getTask(2).getStartTime(),
+                        localTaskManager.getTask(2).getStartTime()),
+                () -> assertEquals(taskManager.getTask(3).getStartTime(),
+                        localTaskManager.getTask(3).getStartTime()),
+                () -> assertEquals(taskManager.getTask(4).getStartTime(),
+                        localTaskManager.getTask(4).getStartTime())
+        );
     }
 }

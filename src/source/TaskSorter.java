@@ -1,18 +1,18 @@
-import java.util.TreeSet;
+import java.util.Collection;
 
 public class TaskSorter {
 
-    static void add(TreeSet<AbstractTask> treeSet, AbstractTask task) {
+    public static void add(Collection<AbstractTask> set, AbstractTask task) {
         if (task instanceof EpicTask) {
             return;
         }
-        treeSet.add(task);
+        set.add(task);
     }
 
-    static void remove(TreeSet<AbstractTask> treeSet, AbstractTask task){
-        if (treeSet.contains(task)) {
-            treeSet.remove(task);
+    public static void remove(Collection<AbstractTask> set, AbstractTask task){
+        if (set.contains(task)) {
+            set.remove(task);
         }
-        treeSet.remove(task);
+        set.remove(task);
     }
 }

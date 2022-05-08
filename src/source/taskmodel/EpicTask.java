@@ -1,4 +1,3 @@
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,32 +6,26 @@ public class EpicTask extends AbstractTask {
     private List<Integer> subTaskListId = new ArrayList<>();
     private LocalDateTime endTime;
 
-    public EpicTask (String taskName, String tastDescription, int taskId, TaskStatus tastStatus) {
-        super(taskName, tastDescription, taskId, tastStatus);
-        taskType = TaskType.EpicTask;
+    public EpicTask (String taskName, String taskDescription, int taskId, TaskStatus tastStatus) {
+        super(taskName, taskDescription, taskId, tastStatus);
     }
 
-    public EpicTask (String taskName, String tastDescription, int taskId, TaskStatus tastStatus,
+    public EpicTask (String taskName, String taskDescription, int taskId, TaskStatus tastStatus,
                      String startTime, long duration) throws Exception {
-        super(taskName, tastDescription, taskId, tastStatus, startTime, duration);
-        taskType = TaskType.EpicTask;
-        this.endTime = this.startTime.plus(this.duration);
+        super(taskName, taskDescription, taskId, tastStatus, startTime, duration);
+        this.endTime = super.getEndTime();
     }
-
 
     public EpicTask(String taskName, String tastDescription, int taskId,
                     TaskStatus tastStatus, List<Integer> subTaskListId) {
         super(taskName, tastDescription, taskId, tastStatus);
         this.subTaskListId = subTaskListId;
-        taskType = TaskType.EpicTask;
     }
-
 
     public EpicTask (String taskName, String tastDescription, int taskId, TaskStatus tastStatus,
                      String startTime, long duration, List<Integer> subTaskListId) throws Exception {
         super(taskName, tastDescription, taskId, tastStatus, startTime, duration);
-        taskType = TaskType.EpicTask;
-        this.endTime = this.startTime.plus(this.duration);
+        this.endTime = super.getStartTime().plus(super.getDuration());
         this.subTaskListId = subTaskListId;
     }
 
@@ -40,10 +33,7 @@ public class EpicTask extends AbstractTask {
         super(task, tastStatus);
         EpicTask epicTask = (EpicTask) task;
         this.subTaskListId = epicTask.getSubTaskListId();
-        taskType = TaskType.EpicTask;
-        if (epicTask.duration != null) {
-            this.duration = epicTask.getDuration();
-            this.startTime = epicTask.getStartTime();
+        if (epicTask.endTime != null) {
             this.endTime = epicTask.getEndTime();
         }
     }
@@ -55,14 +45,6 @@ public class EpicTask extends AbstractTask {
     @Override
     public LocalDateTime getEndTime() {
         return endTime;
-    }
-
-    @Override
-    public Duration getDuration() {
-        if (startTime == null) {
-            return null;
-        }
-        return Duration.between(startTime, endTime);
     }
 
     /**

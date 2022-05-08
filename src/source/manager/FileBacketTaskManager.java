@@ -14,9 +14,15 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      */
     final Path path = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
 
-    public FileBacketTaskManager(HistoryManager historyManager, boolean shouldRecovery) throws Exception {
+
+    /**
+     * флаг, определяющий будет ли применено восстановление из файла
+     */
+     public static boolean RECOVER_FROM_FILE = true;
+
+    public FileBacketTaskManager(HistoryManager historyManager) throws Exception {
         super(historyManager);
-        fileRecoveryChecker(shouldRecovery);
+        fileRecoveryChecker();
     }
 
     public FileBacketTaskManager(HistoryManager historyManager, Path path) throws Exception {
@@ -33,18 +39,17 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      * @throws IOException
      */
 
-    protected void fileRecoveryChecker(boolean shouldRecovery) throws IOException, ManagerSaveException {
+    protected void fileRecoveryChecker() throws IOException, ManagerSaveException {
         if (!Files.exists(path)) {
             Files.createFile(path);
         }
-        if (shouldRecovery && Files.exists(path)) {
+        if (RECOVER_FROM_FILE && Files.exists(path)) {
             Restorer.dataLoader(path, this);
         }
     }
 
     protected void fileRecoveryFromPath(Path path) throws ManagerSaveException {
             Restorer.dataLoader(path, this);
-
     }
 
     @Override
@@ -60,7 +65,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     @Override
     public AbstractTask getTask(int id) throws ManagerSaveException, NoSuchElementException {
         if (taskMap.containsKey(id)) {
-            historyManager.addTask(taskMap.get(id));
+            this.getHistoryManager().addTask(taskMap.get(id));
             try {
                 save();
             } catch (IOException e) {
@@ -96,32 +101,9 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      * в файл
      */
     public void save() throws ManagerSaveException, IOException {
-            try (Writer writer = new FileWriter(path.toString())) {
-                Saveable saveTask = () -> {
-                    StringBuilder allTask = new StringBuilder();
-                    writer.write("typetask.id.name.description.status.execution start time." +
-                            "task duration_min.id epic/subtask\n");
-                    for (AbstractTask task : taskMap.values()) {
-                        allTask.append(task.toString() + "\n");
-                    }
-                    writer.write(allTask + "\n");
-                };
-                Saveable saveRequestHistory = () -> {
-                    if (history() != null) {
-                        writer.write("\nrequesthistory\n");
-                        StringBuilder hist = new StringBuilder();
-                        for (int i = 0; i < history().size(); i++) {
-                            hist.append(i == history().size() - 1 ?
-                                    String.valueOf(history().get(i).getTaskId()) : history().get(i).getTaskId() + ",");
-                        }
-                        writer.write(hist.toString());
-                    } else {
-                        writer.write("");
-                    }
-                };
-                saveTask.save();
-                saveRequestHistory.save();
 
+            try (Writer writer = new FileWriter(path.toString())) {
+                Restorer.saveToFile(writer, this);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 throw new ManagerSaveException("Данные не были сохранены");

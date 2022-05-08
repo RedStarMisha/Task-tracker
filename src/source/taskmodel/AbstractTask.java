@@ -1,48 +1,52 @@
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public abstract class AbstractTask {
-    protected final String taskName;
-    protected final String tastDescription;
-    protected final int taskId;
+    private final String taskName;
+    private final String taskDescription;
+    private final int taskId;
     protected TaskStatus taskStatus;
-    protected TaskType taskType;
-    protected Duration duration;
-    protected LocalDateTime startTime;
+    private final TaskType taskType;
+    private Duration duration;
+    private LocalDateTime startTime;
 
+    public AbstractTask(String taskName, String taskDescription, int taskId, TaskStatus taskStatus) {
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.taskId = taskId;
+        this.taskStatus = taskStatus;
+        taskType = TaskType.getTaskType(this.getClass().toString());
+    }
 
-    public AbstractTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus,
+    public AbstractTask(String taskName, String taskDescription, int taskId, TaskStatus taskStatus,
                         String startTime, long duration) throws Exception {
         durationChecker(duration);
         this.taskName = taskName;
-        this.tastDescription = tastDescription;
+        this.taskDescription = taskDescription;
         this.taskId = taskId;
-        this.taskStatus = tastStatus;
+        this.taskStatus = taskStatus;
         this.duration = Duration.ofMinutes(duration);
         this.startTime = LocalDateTime.parse(startTime, Formater.FORMATTER_DATE);
-    }
-
-    public AbstractTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus) {
-        this.taskName = taskName;
-        this.tastDescription = tastDescription;
-        this.taskId = taskId;
-        this.taskStatus = tastStatus;
+        taskType = TaskType.getTaskType(this.getClass().toString());
     }
 
     public AbstractTask(AbstractTask task, TaskStatus tastStatus) {
         this.taskName = task.taskName;
-        this.tastDescription = task.tastDescription;
+        this.taskDescription = task.taskDescription;
         this.taskId = task.taskId;
         this.taskStatus = tastStatus;
+        this.taskType = task.taskType;
+        if (task.getStartTime() != null) {
+            this.duration = task.getDuration();
+            this.startTime = task.getStartTime();
+        }
     }
 
-    protected void durationChecker(long duration) {
+    private void durationChecker(long duration) {
         if (duration <= 0) {
             throw new IllegalArgumentException ("Длительность должна быть больше 0");
         }
     }
-
 
     public int getTaskId() {
         return taskId;
@@ -52,8 +56,8 @@ public abstract class AbstractTask {
         return taskName;
     }
 
-    public String getTastDescription() {
-        return tastDescription;
+    public String getTaskDescription() {
+        return taskDescription;
     }
 
     public TaskStatus getTaskStatus() {
@@ -83,10 +87,10 @@ public abstract class AbstractTask {
     @Override
     public String toString() {
         if (startTime != null) {
-            return taskType.toString() + "." + taskId + "." + taskName + "." + tastDescription + "." + taskStatus +
+            return taskType.toString() + "." + taskId + "." + taskName + "." + taskDescription + "." + taskStatus +
                     "." + startTime.format(Formater.FORMATTER_DATE) + "." + duration.toMinutes();
         } else {
-            return taskType.toString() + "." + taskId + "." + taskName + "." + tastDescription + "." + taskStatus;
+            return taskType.toString() + "." + taskId + "." + taskName + "." + taskDescription + "." + taskStatus;
         }
     }
 

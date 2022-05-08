@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 class InMemoryHistoryManagerTest {
     static Task task1;
@@ -26,20 +25,20 @@ class InMemoryHistoryManagerTest {
     @BeforeAll
     static void createTask() throws Exception {
         task1 = new Task("Приготовить ужин", "Запечь рыбу в духовке",
-                1,TaskStatus.NEW, "12.01.2022, 16.00",30);
+                1,TaskStatus.NEW, "12-01-2022, 16:00",30);
 
         task2 = new Task("Пострирать белье", "Белое",
-                2,TaskStatus.NEW, "13.01.2022, 20.00",120);
+                2,TaskStatus.NEW, "13-01-2022, 20:00",120);
         task3 = new Task("Почистить обувь", "Черные туфли",
-                3,TaskStatus.NEW, "13.01.2022, 18.00",15);
+                3,TaskStatus.NEW, "13-01-2022, 18:00",15);
         task4 = new Task("Помыть посуду", "Кострюли, сковородки",
-                4,TaskStatus.NEW, "12.01.2022, 12.00",20);
+                4,TaskStatus.NEW, "12-01-2022, 12:00",20);
         task5 = new Task("Убраться на кухне",
-                "Необходимо провести полную уборку кухни", 5, TaskStatus.NEW, "12.01.2022, 13.00",40);
+                "Необходимо провести полную уборку кухни", 5, TaskStatus.NEW, "12-01-2022, 13:00",40);
         epicTask = new EpicTask("Сходить в магазин",
-                "Гипермаркет", 6, TaskStatus.NEW, "12.01.2022, 13.00",120);
+                "Гипермаркет", 6, TaskStatus.NEW, "12-01-2022, 13:00",120);
         subTask = new SubTask("Купить курочку",
-                "Петелинка", 7, TaskStatus.NEW, "12.01.2022, 13.20",15,6);
+                "Петелинка", 7, TaskStatus.NEW, "12-01-2022, 13:20",15,6);
     }
 
     @Test

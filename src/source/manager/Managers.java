@@ -8,8 +8,14 @@ public class Managers  {
         return new InMemoryTaskManager(getDefaultHistory());
     }
 
-    public static InMemoryTaskManager getFileManager(boolean shouldRecovery) throws Exception {
-        return new FileBacketTaskManager(getDefaultHistory(), shouldRecovery);
+    public static InMemoryTaskManager getFileManager() throws Exception {
+        FileBacketTaskManager.RECOVER_FROM_FILE = true;
+        return new FileBacketTaskManager(getDefaultHistory());
+    }
+
+    public static InMemoryTaskManager getFileManagerWithoutRecovery() throws Exception {
+        FileBacketTaskManager.RECOVER_FROM_FILE = false;
+        return new FileBacketTaskManager(getDefaultHistory());
     }
 
 }

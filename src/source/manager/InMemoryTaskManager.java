@@ -5,25 +5,29 @@ import java.util.*;
 public class InMemoryTaskManager implements TaskManager {
     private int id = 1;
     protected Map<Integer, AbstractTask> taskMap = new HashMap<>();
-    protected static HistoryManager historyManager;
+    private final HistoryManager historyManager;
 
+
+    /**
+     * TreeSet был использован как тип т.к. в методе поиска пересечений использовались методы lower и higher
+     * если нужно именно перейти на более высокий уровень абстракции, то я тогда все переделаю. Пока оставил так
+     */
     private TreeSet<AbstractTask> sortedTask = new TreeSet<>((o1, o2) -> {
+        if (o1 == null) return 1;
+        if (o2 == null) return -1;
         if (o1.getStartTime() == null && o2.getStartTime() == null) {
             return o1.getTaskId() - o2.getTaskId();
-        }
-        if (o2.getStartTime() == null) {
+        } else if (o2.getStartTime() == null) {
             return -1;
-        }
-        if (o1.getStartTime() == null) {
+        } else if (o1.getStartTime() == null) {
             return 1;
-        }
-        if (Duration.between(o1.getStartTime(),o2.getStartTime()).toMinutes() == 0) {
+        } else if (Duration.between(o1.getStartTime(),o2.getStartTime()).toMinutes() == 0) {
             return o1.getTaskId() - o2.getTaskId();
         }
         return (int)Duration.between(o1.getStartTime(),o2.getStartTime()).toMinutes();
     });
 
-    public static HistoryManager getHistoryManager() {
+    public HistoryManager getHistoryManager() {
         return historyManager;
     }
 
@@ -55,8 +59,8 @@ public class InMemoryTaskManager implements TaskManager {
     private void dateEpicChecker(EpicTask epicTask, SubTask task) {
         if (task.getDuration() != null && task.getStartTime() != null) {
             if (epicTask.getDuration() == null && epicTask.getStartTime() == null) {
-                epicTask.setDuration(task.getDuration());
                 epicTask.setStartTime(task.getStartTime());
+                epicTask.setDuration(task.getDuration());
                 epicTask.setEndTime(epicTask.getStartTime().plus(task.getDuration()));
             } else {
                 if (task.getStartTime().isBefore(epicTask.getStartTime())) {
@@ -78,8 +82,10 @@ public class InMemoryTaskManager implements TaskManager {
         }
         AbstractTask lowerTask = sortedTask.lower(task);
         AbstractTask higher = sortedTask.higher(task);
-        if (lowerTask != null && lowerTask.getEndTime().isAfter(task.getStartTime()) ||
-            higher != null && higher.getEndTime().isAfter(task.getStartTime())) {
+        if (lowerTask != null && lowerTask.getEndTime().isAfter(task.getStartTime()) &&
+                lowerTask.getEndTime().isBefore(task.getEndTime()) ||
+            higher != null && higher.getEndTime().isAfter(task.getStartTime()) &&
+                    higher.getEndTime().isBefore(task.getEndTime())) {
             throw new ExceptionTaskIntersection("Задачи пересекаются. Измените условия");
         }
     }
@@ -169,10 +175,12 @@ public class InMemoryTaskManager implements TaskManager {
                 for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {
                     taskMap.remove(subTaskid);
                     historyManager.remove(subTaskid);
+                    TaskSorter.remove(sortedTask,taskMap.get(subTaskid));
                 }
             }
             taskMap.remove(id);
             historyManager.remove(id);
+            TaskSorter.remove(sortedTask,taskMap.get(id));
         } else {
             throw new NoSuchElementException("Задачи с таким id не существует");
         }

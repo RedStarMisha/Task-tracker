@@ -1,10 +1,8 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +47,7 @@ public class Restorer {
             String[] history = line.split(",");
             for (String idForHistory : history) {
                 int taskId = Integer.parseInt(idForHistory);
-                InMemoryTaskManager.getHistoryManager().addTask(fileBacketTaskManager.getAllTask().get(taskId));
+                fileBacketTaskManager.getHistoryManager().addTask(fileBacketTaskManager.getAllTask().get(taskId));
             }
         }
         if (line.equals("requesthistory")) {
@@ -81,10 +79,10 @@ public class Restorer {
     }
 
     private static void mapLoaderWithDate(String[] history , Map<Integer, AbstractTask> taskMap) throws Exception {
-        if (history[0].equals("Task")) {
+        if (history[0].equals("TASK")) {
             taskMap.put(Integer.parseInt(history[1]), new Task(history[2], history[3], Integer.parseInt(history[1]),
                     TaskStatus.valueOf(history[4]), history[5], Long.parseLong(history[6])));
-        } else if (history[0].equals("EpicTask")) {
+        } else if (history[0].equals("EPICTASK")) {
             if (history.length == 7) {
                 taskMap.put(Integer.parseInt(history[1]), new EpicTask(history[2], history[3],
                         Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), history[5],
@@ -98,7 +96,7 @@ public class Restorer {
                         Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), history[5],
                         Long.parseLong(history[6]), subTaskList));
             }
-        } else if (history[0].equals("SubTask")) {
+        } else if (history[0].equals("SUBTASK")) {
             taskMap.put(Integer.parseInt(history[1]), new SubTask(history[2], history[3],
                     Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), history[5],
                     Long.parseLong(history[6]), Integer.parseInt(history[7]) ));
@@ -106,10 +104,10 @@ public class Restorer {
     }
 
     private static void mapLoaderWithoutDate(String[] history , Map<Integer, AbstractTask> taskMap) {
-        if (history[0].equals("Task")) {
+        if (history[0].equals("TASK")) {
             taskMap.put(Integer.parseInt(history[1]), new Task(history[2], history[3], Integer.parseInt(history[1]),
                     TaskStatus.valueOf(history[4])));
-        } else if (history[0].equals("EpicTask")) {
+        } else if (history[0].equals("EPICTASK")) {
             if (history.length == 5) {
                 taskMap.put(Integer.parseInt(history[1]), new EpicTask(history[2],
                         history[3], Integer.parseInt(history[1]), TaskStatus.valueOf(history[4])));
@@ -121,9 +119,36 @@ public class Restorer {
                 taskMap.put(Integer.parseInt(history[1]), new EpicTask(history[2], history[3],
                         Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), subTaskList));
             }
-        } else if (history[0].equals("SubTask")) {
+        } else if (history[0].equals("SUBTASK")) {
             taskMap.put(Integer.parseInt(history[1]), new SubTask(history[2], history[3],
                     Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), Integer.parseInt(history[5])));
         }
+    }
+
+    public static void saveToFile(Writer writer, FileBacketTaskManager manager) throws IOException, ManagerSaveException {
+        Saveable saveTask = () -> {
+            StringBuilder allTask = new StringBuilder();
+            writer.write("typetask.id.name.description.status.execution start time." +
+                    "task duration_min.id epic/subtask\n");
+            for (AbstractTask task : manager.getAllTask().values()) {
+                allTask.append(task.toString() + "\n");
+            }
+            writer.write(allTask + "\n");
+        };
+        Saveable saveRequestHistory = () -> {
+            if (manager.history() != null) {
+                writer.write("\nrequesthistory\n");
+                StringBuilder hist = new StringBuilder();
+                for (int i = 0; i < manager.history().size(); i++) {
+                    hist.append(i == manager.history().size() - 1 ?
+                            String.valueOf(manager.history().get(i).getTaskId()) : manager.history().get(i).getTaskId() + ",");
+                }
+                writer.write(hist.toString());
+            } else {
+                writer.write("");
+            }
+        };
+        saveTask.save();
+        saveRequestHistory.save();
     }
 }

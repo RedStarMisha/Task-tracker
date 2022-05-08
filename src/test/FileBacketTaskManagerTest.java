@@ -1,15 +1,17 @@
-import org.junit.jupiter.api.Assertions;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class FileBacketTaskManagerTest extends TaskManagerTest {
 
     @BeforeEach
     void createTaskManager() throws Exception {
-        taskManager = Managers.getFileManager(true);
+        taskManager = Managers.getFileManager();
     }
 
     @Override
@@ -39,7 +41,6 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
         super.createAndAddThreeTaskWithoutDate();
         super.shouldGetTaskWithIncorrectId();
     }
-
 
     @Override
     @Test
@@ -71,13 +72,14 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
     @Override
     @Test
     void shouldGetAllTask() throws Exception {
+        taskManager = Managers.getFileManagerWithoutRecovery();
         super.createAndAddThreeTaskWithoutDate();
         super.shouldGetAllTask();
     }
 
     @Override @Test
     void shouldGetAllTaskForEmptyTaskMap() throws Exception {
-        taskManager = Managers.getFileManager(false);
+        taskManager = Managers.getFileManagerWithoutRecovery();
         super.shouldGetAllTaskForEmptyTaskMap();
     }
 
@@ -125,17 +127,20 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
     void shouldRecoverTaskData() throws Exception {
         super.createAndAddThreeTaskWithoutDate();
         Path pathTest = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
+        FileBacketTaskManager.RECOVER_FROM_FILE = false;
         TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
-        Assertions.assertFalse(localTaskManager.getAllTask().isEmpty());
-        Assertions.assertEquals(taskManager.getTask(1), localTaskManager.getTask(1));
-        Assertions.assertEquals(taskManager.getTask(2), localTaskManager.getTask(2));
-        Assertions.assertEquals(taskManager.getTask(3), localTaskManager.getTask(3));
-        Assertions.assertIterableEquals(taskManager.history(), localTaskManager.history());
+        assertAll(
+                () ->assertFalse(localTaskManager.getAllTask().isEmpty()),
+                () ->assertEquals(taskManager.getTask(1), localTaskManager.getTask(1)),
+                () ->assertEquals(taskManager.getTask(2), localTaskManager.getTask(2)),
+                () ->assertEquals(taskManager.getTask(3), localTaskManager.getTask(3)),
+                () ->assertIterableEquals(taskManager.history(), localTaskManager.history())
+        );
     }
 
     @Test
     void shouldRecoverTaskDataWithoutSubTask() throws Exception {
-        taskManager = Managers.getFileManager(false);
+        //taskManager = Managers.getFileManagerWithoutRecovery();
         Task localTask = new Task("Приготовить ужин", "Запечь рыбу в духовке",
                 1, TaskStatus.NEW, "12-01-2022, 16:00", 10);
         EpicTask localEpicTask = new EpicTask("Убраться на кухне",
@@ -143,10 +148,13 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
         taskManager.add(localTask);
         taskManager.add(localEpicTask);
         Path pathTest = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
+        FileBacketTaskManager.RECOVER_FROM_FILE = true;
         TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
-        Assertions.assertFalse(localTaskManager.getAllTask().isEmpty());
-        Assertions.assertEquals(taskManager.getTask(1), localTaskManager.getTask(1));
-        Assertions.assertEquals(taskManager.getTask(2), localTaskManager.getTask(2));
-        Assertions.assertIterableEquals(taskManager.history(), localTaskManager.history());
+        assertAll(
+                () ->assertFalse(localTaskManager.getAllTask().isEmpty()),
+                () ->assertEquals(taskManager.getTask(1), localTaskManager.getTask(1)),
+                () ->assertEquals(taskManager.getTask(2), localTaskManager.getTask(2)),
+                () ->assertIterableEquals(taskManager.history(), localTaskManager.history())
+        );
     }
 }
