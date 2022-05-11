@@ -1,5 +1,6 @@
 import java.time.Duration;
 import java.util.*;
+import java.util.function.Consumer;
 
 
 public class InMemoryTaskManager implements TaskManager {
@@ -58,13 +59,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void dateEpicChecker(EpicTask epicTask, SubTask task) {
         if (task.getDuration() != null && task.getStartTime() != null) {
+            epicTask.setStartTime(task.getStartTime());
             if (epicTask.getDuration() == null && epicTask.getStartTime() == null) {
-                epicTask.setStartTime(task.getStartTime());
                 epicTask.setDuration(task.getDuration());
                 epicTask.setEndTime(epicTask.getStartTime().plus(task.getDuration()));
             } else {
                 if (task.getStartTime().isBefore(epicTask.getStartTime())) {
-                    epicTask.setStartTime(task.getStartTime());
                     epicTask.setDuration(Duration.between(epicTask.getStartTime(),
                             epicTask.getEndTime()));
                 }
@@ -132,6 +132,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+
     private void updateSimpleTaskStatus(Task simpleTask, TaskStatus status) {
         taskMap.replace(simpleTask.getTaskId(), new Task(simpleTask, status));
     }
@@ -170,20 +171,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deteteTask(int id) throws NoSuchElementException, ManagerSaveException {
-        if (taskMap.containsKey(id)) {
-            if (taskMap.get(id) instanceof EpicTask) {
-                for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {
-                    taskMap.remove(subTaskid);
-                    historyManager.remove(subTaskid);
-                    TaskSorter.remove(sortedTask,taskMap.get(subTaskid));
-                }
-            }
-            taskMap.remove(id);
-            historyManager.remove(id);
-            TaskSorter.remove(sortedTask,taskMap.get(id));
-        } else {
+        if (!taskMap.containsKey(id)) {
             throw new NoSuchElementException("Задачи с таким id не существует");
         }
+        Consumer<Integer> stepToRemove = (taskId) -> {
+            taskMap.remove(taskId);
+            historyManager.remove(taskId);
+            TaskSorter.remove(sortedTask,taskMap.get(taskId));
+        };
+        if (taskMap.get(id) instanceof EpicTask) {
+            for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {
+                stepToRemove.accept(subTaskid);
+            }
+        }
+        stepToRemove.accept(id);
     }
 
     public TreeSet<AbstractTask> getSortedTask() {
