@@ -1,5 +1,7 @@
 typetask.id.name.description.status.execution start time.task duration_min.id epic/subtask
-TASK.1.Приготовить ужин.Запечь рыбу в духовке.NEW
+TASK.1.Убрать со стола.Убрать грязную посуду, стереть со стола.DONE.15-01-2022, 11:50.10
+TASK.2.Убрать жолпа.Мент.NEW.15-01-2022, 11:50.10
+TASK.3.Убрать со стола.Грязь.NEW.15-01-2022, 11:50.10
 
 
 requesthistory

@@ -59,20 +59,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     private void dateEpicChecker(EpicTask epicTask, SubTask task) {
         if (task.getDuration() != null && task.getStartTime() != null) {
-            epicTask.setStartTime(task.getStartTime());
-            if (epicTask.getDuration() == null && epicTask.getStartTime() == null) {
-                epicTask.setDuration(task.getDuration());
-                epicTask.setEndTime(epicTask.getStartTime().plus(task.getDuration()));
-            } else {
-                if (task.getStartTime().isBefore(epicTask.getStartTime())) {
-                    epicTask.setDuration(Duration.between(epicTask.getStartTime(),
-                            epicTask.getEndTime()));
-                }
-                if (epicTask.getEndTime().isBefore(task.getEndTime())) {
-                    epicTask.setEndTime(task.getEndTime());
-                }
-                epicTask.setDuration(Duration.between(epicTask.getStartTime(),epicTask.getEndTime()));
+            if (epicTask.getStartTime() == null || task.getStartTime().isBefore(epicTask.getStartTime())) {
+                epicTask.setStartTime(task.getStartTime());
             }
+            if (epicTask.getEndTime() == null || epicTask.getEndTime().isBefore(task.getEndTime())) {
+                epicTask.setEndTime(task.getEndTime());
+            }
+            epicTask.setDuration(Duration.between(epicTask.getStartTime(),epicTask.getEndTime()));
         }
     }
 
@@ -115,6 +108,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void clearTaskMap() {
         taskMap.clear();
+        sortedTask.clear();
         id = 1;
     }
 
@@ -131,7 +125,6 @@ public class InMemoryTaskManager implements TaskManager {
             throw new NoSuchElementException("Задачи с таким id не существует");
         }
     }
-
 
     private void updateSimpleTaskStatus(Task simpleTask, TaskStatus status) {
         taskMap.replace(simpleTask.getTaskId(), new Task(simpleTask, status));
@@ -194,5 +187,4 @@ public class InMemoryTaskManager implements TaskManager {
     public List<AbstractTask> history() throws NoSuchElementException {
         return historyManager.getHistory();
     }
-
 }

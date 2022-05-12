@@ -9,9 +9,11 @@ public class Main {
 
     public static void main(String[] args) throws ManagerSaveException, AddEmptyElementException {
         try {
-            manager = Managers.getDefault();
-            System.out.println(AbstractTask.class.toString());
-           createTask();
+            HttpTaskServer httpTaskServer = new HttpTaskServer();
+            httpTaskServer.createServer();
+//            manager = Managers.getDefault();
+//           createTask();
+
 
 //            manager.getTask(3);
 //            System.out.println(manager.history());
