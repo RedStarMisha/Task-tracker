@@ -1,8 +1,6 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Path;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FileBacketTaskManagerWithDateTest extends TaskManagerWithDateTest{
@@ -37,7 +35,7 @@ public class FileBacketTaskManagerWithDateTest extends TaskManagerWithDateTest{
     @Test
     void shouldRecoverDateInfoFromFile() throws Exception {
         super.createAndAddThreeTaskWithDate();
-        Path pathTest = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
+        String pathTest = System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt";
         TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
         assertAll(
                 () -> assertFalse(localTaskManager.getAllTask().isEmpty()),

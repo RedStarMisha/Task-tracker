@@ -3,12 +3,9 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
-
-import static jdk.internal.util.xml.XMLStreamWriter.DEFAULT_CHARSET;
 
 /**
  * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
@@ -91,7 +88,6 @@ public class KVServer {
                     }
                     String responseValue = gson.toJson(data.get(key));
                     System.out.println("Значение для ключа " + key + " отправлено");
-                    //h.sendResponseHeaders(200, 0);
                     sendText(h, responseValue);
                     break;
                 default:

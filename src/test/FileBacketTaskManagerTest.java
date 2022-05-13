@@ -1,9 +1,7 @@
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -126,7 +124,7 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
     @Test
     void shouldRecoverTaskData() throws Exception {
         super.createAndAddThreeTaskWithoutDate();
-        Path pathTest = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
+        String pathTest = System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt";
         FileBacketTaskManager.RECOVER_FROM_FILE = false;
         TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
         assertAll(
@@ -147,7 +145,7 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
                 "Необходимо провести полную уборку кухни", 2, TaskStatus.NEW);
         taskManager.add(localTask);
         taskManager.add(localEpicTask);
-        Path pathTest = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
+        String pathTest = System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt";
         FileBacketTaskManager.RECOVER_FROM_FILE = true;
         TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
         assertAll(

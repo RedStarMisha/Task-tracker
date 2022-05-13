@@ -8,6 +8,10 @@ public class Managers  {
         return new InMemoryTaskManager(getDefaultHistory());
     }
 
+    public static TaskManager getHttpTaskManager(String path) throws Exception {
+        return new HTTPTaskManager(getDefaultHistory(), path);
+    }
+
     public static InMemoryTaskManager getFileManager() throws Exception {
         FileBacketTaskManager.RECOVER_FROM_FILE = true;
         return new FileBacketTaskManager(getDefaultHistory());

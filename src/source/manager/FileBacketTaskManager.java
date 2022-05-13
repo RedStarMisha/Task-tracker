@@ -25,9 +25,9 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
         fileRecoveryChecker();
     }
 
-    public FileBacketTaskManager(HistoryManager historyManager, Path path) throws Exception {
+    public FileBacketTaskManager(HistoryManager historyManager, String newPath) throws Exception {
         super(historyManager);
-        fileRecoveryFromPath(path);
+        fileRecoveryFromPath(newPath);
     }
 
     /**
@@ -42,14 +42,16 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     protected void fileRecoveryChecker() throws IOException, ManagerSaveException {
         if (!Files.exists(path)) {
             Files.createFile(path);
-        }
-        if (RECOVER_FROM_FILE && Files.exists(path)) {
+        } else if (RECOVER_FROM_FILE) {
             Restorer.dataLoader(path, this);
         }
     }
 
-    protected void fileRecoveryFromPath(Path path) throws ManagerSaveException {
-            Restorer.dataLoader(path, this);
+    protected void fileRecoveryFromPath(String path) throws ManagerSaveException {
+        if (path == null) {
+            return;
+        }
+        Restorer.dataLoader(Path.of(path), this);
     }
 
     @Override
@@ -57,7 +59,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
         super.add(task);
         try {
             save();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -68,7 +70,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
             this.getHistoryManager().addTask(taskMap.get(id));
             try {
                 save();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return taskMap.get(id);
@@ -81,7 +83,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
         super.deteteTask(id);
         try {
             save();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -91,7 +93,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
         super.updateTaskStatus(id, status);
         try {
             save();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -100,7 +102,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      * Метод сохраняет список задач и историю запросов
      * в файл
      */
-    public void save() throws ManagerSaveException, IOException {
+    public void save() throws Exception {
 
             try (Writer writer = new FileWriter(path.toString())) {
                 Restorer.saveToFile(writer, this);

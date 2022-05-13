@@ -1,5 +1,3 @@
-import com.google.gson.Gson;
-
 /**
  * Прошу дополнительно посмотреть верность(а скорее неверность) применение исключений.
  * Я в этой теме не совсем хорошо разобрался.
@@ -15,7 +13,11 @@ public class Main {
 //            httpTaskServer.createServer();
 
             new KVServer().start();
-            KVTaskClient client = new KVTaskClient("http://localhost:8080");
+            manager = Managers.getHttpTaskManager("http://localhost:8080");
+            createTask();
+
+
+
 
 
 

@@ -125,7 +125,7 @@ public class Restorer {
         }
     }
 
-    public static void saveToFile(Writer writer, FileBacketTaskManager manager) throws IOException, ManagerSaveException {
+    public static void saveToFile(Writer writer, FileBacketTaskManager manager) throws Exception {
         Saveable saveTask = () -> {
             StringBuilder allTask = new StringBuilder();
             writer.write("typetask.id.name.description.status.execution start time." +
