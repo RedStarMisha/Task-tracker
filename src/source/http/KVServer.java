@@ -91,10 +91,8 @@ public class KVServer {
                     }
                     String responseValue = gson.toJson(data.get(key));
                     System.out.println("Значение для ключа " + key + " отправлено");
-                    h.sendResponseHeaders(200, 0);
-                    try (OutputStream os = h.getResponseBody()) {
-                        os.write(responseValue.getBytes(DEFAULT_CHARSET));
-                    }
+                    //h.sendResponseHeaders(200, 0);
+                    sendText(h, responseValue);
                     break;
                 default:
                     System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());

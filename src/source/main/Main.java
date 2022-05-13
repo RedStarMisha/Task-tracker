@@ -15,6 +15,7 @@ public class Main {
 //            httpTaskServer.createServer();
 
             new KVServer().start();
+            KVTaskClient client = new KVTaskClient("http://localhost:8080");
 
 
 
