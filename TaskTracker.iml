@@ -50,5 +50,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="gson-2.9.0" level="project" />
+    <orderEntry type="library" name="commons-collections4-4.4-javadoc" level="project" />
   </component>
 </module>

@@ -1,3 +1,5 @@
+import com.google.gson.Gson;
+
 /**
  * Прошу дополнительно посмотреть верность(а скорее неверность) применение исключений.
  * Я в этой теме не совсем хорошо разобрался.
@@ -11,6 +13,13 @@ public class Main {
         try {
             HttpTaskServer httpTaskServer = new HttpTaskServer();
             httpTaskServer.createServer();
+
+
+//            Gson gson = new Gson();
+//            String xx = gson.toJson(new Task("Поменять лампочку на кухне",
+//                    "Выкрутить старую лампочку, правильно ее утилизировать и вкрутить новую",
+//                    6, TaskStatus.NEW, "12-01-2022, 16:00",10));
+//            System.out.println(xx);
 //            manager = Managers.getDefault();
 //           createTask();
 
