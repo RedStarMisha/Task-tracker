@@ -11,17 +11,11 @@ public class Main {
 
     public static void main(String[] args) throws ManagerSaveException, AddEmptyElementException {
         try {
-            HttpTaskServer httpTaskServer = new HttpTaskServer();
-            httpTaskServer.createServer();
+//            HttpTaskServer httpTaskServer = new HttpTaskServer();
+//            httpTaskServer.createServer();
 
+            new KVServer().start();
 
-//            Gson gson = new Gson();
-//            String xx = gson.toJson(new Task("Поменять лампочку на кухне",
-//                    "Выкрутить старую лампочку, правильно ее утилизировать и вкрутить новую",
-//                    6, TaskStatus.NEW, "12-01-2022, 16:00",10));
-//            System.out.println(xx);
-//            manager = Managers.getDefault();
-//           createTask();
 
 
 //            manager.getTask(3);

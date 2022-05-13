@@ -1,15 +1,20 @@
+import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+
+import static jdk.internal.util.xml.XMLStreamWriter.DEFAULT_CHARSET;
 
 /**
  * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
  */
 public class KVServer {
+    Gson gson = new Gson();
     public static final int PORT = 8080;
     private final String API_TOKEN;
     private HttpServer server;
@@ -68,6 +73,36 @@ public class KVServer {
             }
         });
         server.createContext("/load", (h) -> {
+            try {
+            System.out.println("\n/load");
+            if (!hasAuth(h)) {
+                System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
+                h.sendResponseHeaders(403, 0);
+                return;
+            }
+            switch (h.getRequestMethod()) {
+                case "GET":
+                    String key = h.getRequestURI().getPath().substring("/load/".length());
+                    if (key.isEmpty() || !data.containsKey(key)) {
+                        System.out.println("Key для загрузки пустой или не существует. " +
+                                "key указывается в пути: /load/{key}");
+                        h.sendResponseHeaders(400, 0);
+                        return;
+                    }
+                    String responseValue = gson.toJson(data.get(key));
+                    System.out.println("Значение для ключа " + key + " отправлено");
+                    h.sendResponseHeaders(200, 0);
+                    try (OutputStream os = h.getResponseBody()) {
+                        os.write(responseValue.getBytes(DEFAULT_CHARSET));
+                    }
+                    break;
+                default:
+                    System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
+                    h.sendResponseHeaders(405, 0);
+            }
+    } finally {
+            h.close();
+        }
             // TODO Добавьте получение значения по ключу
         });
     }
