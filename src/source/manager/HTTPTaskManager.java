@@ -8,12 +8,17 @@ import java.util.Map;
 
 public class HTTPTaskManager extends FileBacketTaskManager{
     KVTaskClient kvTaskClient;
-    Gson gson = new Gson();
+    Gson gson;
 
 
-    public HTTPTaskManager(HistoryManager historyManager, String path) throws Exception {
+    public HTTPTaskManager(HistoryManager historyManager, String path, Gson gson) throws Exception {
         super(historyManager, null);
-        kvTaskClient = new KVTaskClient(path);
+        kvTaskClient = new KVTaskClient(path, gson);
+        this.gson = gson;
+        if (RECOVERY) {
+            loadTasks();
+            loadHistory();
+        }
     }
 
     @Override
@@ -28,6 +33,7 @@ public class HTTPTaskManager extends FileBacketTaskManager{
             , ExceptionTaskIntersection {
         String tasks = kvTaskClient.load("map");
         Map<Integer,AbstractTask> mapForTask = gson.fromJson(tasks, HashMap.class);
+
         for (AbstractTask task : mapForTask.values()) {
             add(task);
         }

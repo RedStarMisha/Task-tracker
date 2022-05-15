@@ -9,12 +9,13 @@ public class Main {
 
     public static void main(String[] args) throws ManagerSaveException, AddEmptyElementException {
         try {
-//            HttpTaskServer httpTaskServer = new HttpTaskServer();
-//            httpTaskServer.createServer();
-
             new KVServer().start();
-            manager = Managers.getHttpTaskManager("http://localhost:8080");
-            createTask();
+            HttpTaskServer httpTaskServer = new HttpTaskServer("http://localhost:8080");
+            httpTaskServer.createServer();
+
+//            new KVServer().start();
+//            manager = Managers.getHttpTaskManager("http://localhost:8080", gson);
+
 
 
 

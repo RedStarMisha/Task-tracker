@@ -18,6 +18,14 @@ public abstract class AbstractTask {
         taskType = TaskType.getTaskType(this.getClass().toString());
     }
 
+//    public AbstractTask(AbstractTask task, int id) {
+//        this.taskName = task.taskName;
+//        this.taskDescription = task.taskDescription;
+//        this.taskId = id;
+//        this.taskStatus = task.taskStatus;
+//        this.taskType = task.taskType;
+//    }
+
     public AbstractTask(String taskName, String taskDescription, int taskId, TaskStatus taskStatus,
                         String startTime, long duration) throws Exception {
         durationChecker(duration);
@@ -30,11 +38,11 @@ public abstract class AbstractTask {
         taskType = TaskType.getTaskType(this.getClass().toString());
     }
 
-    public AbstractTask(AbstractTask task, TaskStatus tastStatus) {
+    public AbstractTask(AbstractTask task, TaskStatus taskStatus) {
         this.taskName = task.taskName;
         this.taskDescription = task.taskDescription;
         this.taskId = task.taskId;
-        this.taskStatus = tastStatus;
+        this.taskStatus = taskStatus;
         this.taskType = task.taskType;
         if (task.getStartTime() != null) {
             this.duration = task.getDuration();

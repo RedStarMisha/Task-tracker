@@ -8,49 +8,37 @@ import com.sun.net.httpserver.HttpServer;
 import org.apache.commons.collections4.map.SingletonMap;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpRetryException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import static jdk.internal.util.xml.XMLStreamWriter.DEFAULT_CHARSET;
 
 public class HttpTaskServer {
 
-    private static final int PORT = 8080;
+    private static final int PORT = 8078;
     //private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private final int SUCCESSFUL_CODE = 200;
     private final int ERROR_CODE = 400;
     private static Gson gson = new Gson();
-    public InMemoryTaskManager manager;
+    public TaskManager manager;
+    String path;
     Charset windows1251 = Charset.forName("Windows-1251");
+
+    public HttpTaskServer(String path) throws Exception {
+        this.path = path;
+        HTTPTaskManager.RECOVERY = false;
+        manager = Managers.getHttpTaskManager(path, gson);
+        HTTPTaskManager.RECOVERY = true;
+    }
 
 
     public void createServer() throws Exception {
-
         HttpServer httpServer = HttpServer.create();
-        manager = Managers.getFileManagerWithoutRecovery();
-        try {
-            manager.add(new Task("Убрать со стола",
-                    "Убрать грязную посуду, стереть со стола", manager.setIdNumeration(), TaskStatus.NEW,
-                    "15-01-2022, 11:50",10));
-            manager.add(new Task("Убрать жолпа",
-                    "Мент", manager.setIdNumeration(), TaskStatus.NEW,
-                    "15-01-2022, 11:50",10));
-            manager.add(new Task("Убрать со стола",
-                    "Грязь", manager.setIdNumeration(), TaskStatus.NEW,
-                    "15-01-2022, 11:50",10));
-            httpServer.bind(new InetSocketAddress(PORT), 0);
-            httpServer.createContext("/tasks", new TaskHandler());
-            httpServer.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        httpServer.bind(new InetSocketAddress(PORT), 0);
+        httpServer.createContext("/tasks", new TaskHandler());
+        httpServer.start();
+
 
 
         System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
@@ -63,8 +51,7 @@ public class HttpTaskServer {
             SingletonMap<Integer, String> respAndCode = new SingletonMap<>();
             try{
                 String method = httpExchange.getRequestMethod();
-                InputStream inputStream = httpExchange.getRequestBody();
-                String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
+                String body = new String(httpExchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
                 String query = httpExchange.getRequestURI().getQuery();
                 String path = httpExchange.getRequestURI().getPath().substring(7);
 
@@ -90,14 +77,11 @@ public class HttpTaskServer {
 
         }
 
-        private SingletonMap<Integer, String>  notNullQuery(String method, String query) throws ManagerSaveException {
+        private SingletonMap<Integer, String>  notNullQuery(String method, String query) throws Exception {
             int id = query.charAt(3) - 48;
-            System.out.println(id);
             if (id < 0 || !manager.getAllTask().containsKey(id)) {
                 throw new IllegalArgumentException("Такого id не существует");
             }
-            TaskStatus taskStatus = (query.indexOf("status")>=0) ?
-                    TaskStatus.valueOf(query.substring(7).toUpperCase()) : null;
             switch (method) {
                 case "GET":
                     return new SingletonMap<>(SUCCESSFUL_CODE, manager.getTask(id).toString());
@@ -105,6 +89,10 @@ public class HttpTaskServer {
                     manager.deteteTask(id);
                     return new SingletonMap<>(SUCCESSFUL_CODE, "Задача удалена");
                 case "POST":
+                    if (query.indexOf("status") < 0) {
+                        throw new IllegalArgumentException("Отсутсвует информация о новом статусе");
+                    }
+                    TaskStatus taskStatus = TaskStatus.valueOf(query.substring(7).toUpperCase());
                     manager.updateTaskStatus(id, taskStatus);
                     return new SingletonMap<>(SUCCESSFUL_CODE, "Обновление статуса задачи "
                             + manager.getAllTask().get(id).getTaskName() + " id " + id + " выполнено");
@@ -114,23 +102,21 @@ public class HttpTaskServer {
             }
         }
 
-        private SingletonMap<Integer, String> nullQuery(String method, String path, String body)
-                throws ClassNotFoundException, ManagerSaveException,
-                AddEmptyElementException, ExceptionTaskIntersection {
+        private SingletonMap<Integer, String> nullQuery(String method, String subPath, String body)
+                throws Exception {
             switch (method) {
                 case "GET":
-                    if (path.equals("history")){
+                    if (subPath.equals("history")){
                         return new SingletonMap<>(SUCCESSFUL_CODE, manager.history().toString());
+                    } else if (subPath.equals("load")) {
+                        manager = Managers.getHttpTaskManager(path, gson);
                     }
                     return new SingletonMap<>(SUCCESSFUL_CODE, manager.getAllTask().toString());
                 case "DELETE":
                     manager.clearTaskMap();
                     return new SingletonMap<>(SUCCESSFUL_CODE, "Список задач очищен");
                 case "POST":
-                    JsonElement jsonElement = JsonParser.parseString(body);
-                    JsonObject jsonObject = jsonElement.getAsJsonObject();
-                    String name = Formater.firstLettertoUpperCase(jsonObject.get("taskType").getAsString());
-                    Class className = Class.forName(name);
+                    Class className = Class.forName(taskTypeParser(body));
                     AbstractTask task = (AbstractTask) gson.fromJson(body, className);
                     manager.add(task);
                     return new SingletonMap<>(SUCCESSFUL_CODE, "Задача ");
@@ -138,6 +124,12 @@ public class HttpTaskServer {
                     System.out.println("Такого метода нет");
                     return new SingletonMap<>(ERROR_CODE,  "Запрос не обработан");
             }
+        }
+
+        private String taskTypeParser(String body) {
+            JsonElement jsonElement = JsonParser.parseString(body);
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            return Formater.firstLettertoUpperCase(jsonObject.get("taskType").getAsString());
         }
     }
 

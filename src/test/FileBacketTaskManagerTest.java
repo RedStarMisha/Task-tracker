@@ -125,7 +125,7 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
     void shouldRecoverTaskData() throws Exception {
         super.createAndAddThreeTaskWithoutDate();
         String pathTest = System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt";
-        FileBacketTaskManager.RECOVER_FROM_FILE = false;
+        FileBacketTaskManager.RECOVERY = false;
         TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
         assertAll(
                 () ->assertFalse(localTaskManager.getAllTask().isEmpty()),
@@ -146,7 +146,7 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
         taskManager.add(localTask);
         taskManager.add(localEpicTask);
         String pathTest = System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt";
-        FileBacketTaskManager.RECOVER_FROM_FILE = true;
+        FileBacketTaskManager.RECOVERY = true;
         TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
         assertAll(
                 () ->assertFalse(localTaskManager.getAllTask().isEmpty()),

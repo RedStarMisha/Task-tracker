@@ -43,7 +43,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         taskIntersectionChecker(task);
         taskMap.put(task.getTaskId(), task);
-        TaskSorter.add(sortedTask,task);
+        TaskSorter.add(sortedTask , task);
         if (task instanceof SubTask) {
             addSubTask((SubTask) task);
         }

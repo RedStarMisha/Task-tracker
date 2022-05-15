@@ -18,7 +18,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     /**
      * флаг, определяющий будет ли применено восстановление из файла
      */
-     public static boolean RECOVER_FROM_FILE = true;
+     public static boolean RECOVERY = true;
 
     public FileBacketTaskManager(HistoryManager historyManager) throws Exception {
         super(historyManager);
@@ -42,7 +42,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     protected void fileRecoveryChecker() throws IOException, ManagerSaveException {
         if (!Files.exists(path)) {
             Files.createFile(path);
-        } else if (RECOVER_FROM_FILE) {
+        } else if (RECOVERY) {
             Restorer.dataLoader(path, this);
         }
     }

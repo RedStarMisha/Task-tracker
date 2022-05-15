@@ -7,14 +7,15 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class KVTaskClient {
-    Gson gson = new Gson();
+    Gson gson;
     String baseURI;
     private final String token;
     HttpClient client = HttpClient.newHttpClient();
 
 
-    public KVTaskClient(String link) throws IOException, InterruptedException {
+    public KVTaskClient(String link, Gson gson) throws Exception {
         baseURI = link;
+        this.gson = gson;
         token = register(link);
     }
 
@@ -50,4 +51,28 @@ public class KVTaskClient {
         System.out.println("HTTP код ответа: " + response.statusCode());
         return response.body().toString();
     }
+
+//    private String createTask() throws Exception {
+//        TaskManager manager = Managers.getHttpTaskManager("http://localhost:8080", gson);
+//        manager.add(new Task("Поменять лампочку на кухне",
+//                "Выкрутить старую лампочку, правильно ее утилизировать и вкрутить новую",
+//                manager.setIdNumeration(), TaskStatus.NEW, "12-01-2022, 16:00",10));
+//        manager.add(new EpicTask("Убраться на кухне",
+//                "Необходимо провести полную уборку кухни", manager.setIdNumeration(), TaskStatus.NEW,
+//                "15-01-2022, 11:00",20));
+//        manager.add(new SubTask("Помыть посуду", "Посуда должна быть чистой",
+//                manager.setIdNumeration(), TaskStatus.IN_PROGRESS, "12-01-2022, 17:05",40,
+//                2));
+//        manager.add(new SubTask("Убрать со стола",
+//                "Убрать грязную посуду, стереть со стола", manager.setIdNumeration(), TaskStatus.DONE,
+//                "15-01-2022, 11:50",10,2));
+//        manager.add(new EpicTask("Убраться в спальне",
+//                "Провести быструю уборку в спальной комнате", manager.setIdNumeration(), TaskStatus.NEW));
+//        manager.add(new SubTask("Убрать постель",
+//                "Убрать одеяла и застелить постель", manager.setIdNumeration(), TaskStatus.NEW,
+//                "14-01-2022, 09:00",5, 5));
+//        manager.add(new EpicTask("Приготовить ужин",
+//                "Приготовить ужин на двоих", manager.setIdNumeration(), TaskStatus.NEW));
+//        return gson.toJson(manager);
+//    }
 }
