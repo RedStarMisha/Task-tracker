@@ -92,6 +92,10 @@ public abstract class AbstractTask {
         return startTime;
     }
 
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
     @Override
     public String toString() {
         if (startTime != null) {

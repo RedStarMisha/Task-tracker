@@ -85,11 +85,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public AbstractTask getTask(int id) throws NoSuchElementException, ManagerSaveException {
-        if (taskMap.containsKey(id)) {
+            containsKeyFromTaskMap(id);
             historyManager.addTask(taskMap.get(id));
             return taskMap.get(id);
-        }
-        throw new NoSuchElementException("Задачи с таким id не существует");
     }
 
     @Override
@@ -113,60 +111,40 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void updateTaskStatus(int id, TaskStatus status) throws ManagerSaveException, NoSuchElementException {
-        if (taskMap.get(id) instanceof Task) {
-            updateSimpleTaskStatus((Task) taskMap.get(id), status);
-        } else if (taskMap.get(id) instanceof EpicTask) {
-            if (taskMap.get(id).getTaskStatus() != status) {
+        switch (taskMap.get(id).getTaskType()) {
+            case TASK:
+                taskMap.replace(id, new Task(taskMap.get(id), status));
+            case EPICTASK:
                 System.out.println("Сначала обновите статус подзадач");
-            }
-        } else if (taskMap.get(id) instanceof SubTask) {
-            updateSubTaskStatus((SubTask) taskMap.get(id), status);
-        } else {
-            throw new NoSuchElementException("Задачи с таким id не существует");
+            case SUBTASK:
+                SubTask updatedSubtask = new SubTask(taskMap.get(id), status);
+                taskMap.replace(id, updatedSubtask);
+                epicStatusChecker(updatedSubtask.getEpicTaskId(), status);
+            default:
+                throw new NoSuchElementException("Задачи с таким типом не существует");
         }
     }
 
-    private void updateSimpleTaskStatus(Task simpleTask, TaskStatus status) {
-        taskMap.replace(simpleTask.getTaskId(), new Task(simpleTask, status));
-    }
-
-    private void updateEpicTaskStatus(EpicTask epicTask, TaskStatus status) {
-        taskMap.replace(epicTask.getTaskId(), new EpicTask(epicTask, status));
-    }
-
-    private void updateSubTaskStatus(SubTask subTask, TaskStatus statusForNewSubTask) {
-        taskMap.replace(subTask.getTaskId(), new SubTask(subTask, statusForNewSubTask));
-        epicStatusChecker(subTask.getEpicTaskId(), statusForNewSubTask);
-    }
-
-    private void epicStatusChecker(Integer epicId, TaskStatus statusForNewSubTask) {
-        EpicTask epicForSubTask = (EpicTask) taskMap.get(epicId);
-        if (epicForSubTask.getTaskStatus() != statusForNewSubTask) {
-            boolean statusNew = true;
-            boolean statusDone = true;
-            for (int subTaskId : ((EpicTask) taskMap.get(epicId)).getSubTaskListId()) {
-                if (taskMap.get(subTaskId).getTaskStatus() != TaskStatus.NEW) {
-                    statusNew = false;
-                }
-                if (taskMap.get(subTaskId).getTaskStatus() != TaskStatus.DONE) {
-                    statusDone = false;
-                }
+    private void epicStatusChecker(int epicId, TaskStatus statusForNewSubTask) {
+        EpicTask updatedEpic = (EpicTask) taskMap.get(epicId);
+        if (updatedEpic.getTaskStatus() != statusForNewSubTask) {
+            Set<TaskStatus> taskStatusSet = new HashSet<>();
+            for (int subtaskId : updatedEpic.getSubTaskListId()) {
+                taskStatusSet.add(taskMap.get(subtaskId).getTaskStatus());
             }
-            if (statusNew) {
-                updateEpicTaskStatus(epicForSubTask, TaskStatus.NEW);
-            } else if (statusDone) {
-                updateEpicTaskStatus(epicForSubTask, TaskStatus.DONE);
+            if (taskStatusSet.contains(TaskStatus.NEW) && taskStatusSet.size() == 1) {
+                taskMap.replace(epicId, new EpicTask(updatedEpic, TaskStatus.NEW));
+            } else if (taskStatusSet.contains(TaskStatus.DONE) && taskStatusSet.size() == 1) {
+                taskMap.replace(epicId, new EpicTask(updatedEpic, TaskStatus.DONE));
             } else {
-                updateEpicTaskStatus(epicForSubTask, TaskStatus.IN_PROGRESS);
+                taskMap.replace(epicId, new EpicTask(updatedEpic, TaskStatus.IN_PROGRESS));
             }
         }
     }
 
     @Override
     public void deteteTask(int id) throws NoSuchElementException, ManagerSaveException {
-        if (!taskMap.containsKey(id)) {
-            throw new NoSuchElementException("Задачи с таким id не существует");
-        }
+        containsKeyFromTaskMap(id);
         Consumer<Integer> stepToRemove = (taskId) -> {
             taskMap.remove(taskId);
             historyManager.remove(taskId);
@@ -186,5 +164,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     public List<AbstractTask> history() throws NoSuchElementException {
         return historyManager.getHistory();
+    }
+
+    private void containsKeyFromTaskMap(int id) {
+        if (!taskMap.containsKey(id)) {
+            throw new NoSuchElementException("Задачи с таким id не существует");
+        }
     }
 }

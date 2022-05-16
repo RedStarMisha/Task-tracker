@@ -1,4 +1,3 @@
-import java.io.IOException;
 
 @FunctionalInterface
 public interface Saveable {

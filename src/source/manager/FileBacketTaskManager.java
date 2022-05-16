@@ -4,7 +4,6 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 public class FileBacketTaskManager extends InMemoryTaskManager implements Saveable {
 
@@ -52,7 +51,6 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     }
 
     protected void fileRecoveryFromPath(String path) throws ManagerSaveException, IOException {
-
         if (path == null) {
             return;
         } else if (!Files.exists(Path.of(path))) {
@@ -64,7 +62,6 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     @Override
     public void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException, ExceptionTaskIntersection {
         super.add(task);
-        System.out.println(this.getAllTask().toString());
         try {
             save();
         } catch (Exception e) {
@@ -111,7 +108,6 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      * в файл
      */
     public void save() throws Exception {
-
             try (Writer writer = new FileWriter(path.toString())) {
                 Restorer.saveToFile(writer, this);
             } catch (Exception e) {
