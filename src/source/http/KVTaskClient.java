@@ -10,7 +10,9 @@ public class KVTaskClient {
     Gson gson;
     String baseURI;
     private final String token;
-    HttpClient client = HttpClient.newHttpClient();
+    final HttpClient client = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
+            .build();
 
 
     public KVTaskClient(String link, Gson gson) throws Exception {
@@ -35,11 +37,13 @@ public class KVTaskClient {
         HttpRequest requestForSave = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(data))
                 .uri(postUri)
+                .version(HttpClient.Version.HTTP_1_1)
                 .build();
-        HttpResponse<String> response = client.send(requestForSave,HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client.send(requestForSave , HttpResponse.BodyHandlers.ofString());
         System.out.println("HTTP код ответа: " + response.statusCode());
         System.out.println("Ответ в формате XML: " + response.body());
     }
+
 
     public String load(String key) throws IOException, InterruptedException {
         URI getUri = URI.create(baseURI + "/load/" + key + "?API_TOKEN=" + token);

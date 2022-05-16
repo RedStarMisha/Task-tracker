@@ -49,80 +49,69 @@ public class HttpTaskServer {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             SingletonMap<Integer, String> respAndCode = new SingletonMap<>();
-            try{
-                String method = httpExchange.getRequestMethod();
-                String body = new String(httpExchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
-                String query = httpExchange.getRequestURI().getQuery();
-                String path = httpExchange.getRequestURI().getPath().substring(7);
+            try {
+                String method = httpExchange.getRequestMethod(); //Метод запроса
+                String body = new String(httpExchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET); //тело запроса
+                String query = httpExchange.getRequestURI().getQuery(); //Параметр в строке запроса
+                String subPath = httpExchange.getRequestURI().getPath().substring(7);  //Подпуть, то что идет после tasks
+                String[] sP = httpExchange.getRequestURI().getPath().split("/");
 
-                if (path.isEmpty() && method.equals("GET")) {
+                if (subPath.isEmpty() && method.equals("GET")) {
                     respAndCode = new SingletonMap<>(SUCCESSFUL_CODE , manager.getSortedTask().toString());
-                } else if (query != null) {
-                    respAndCode = notNullQuery(method, query);
-                } else if (query == null) {
-                    respAndCode = nullQuery(method, path, body);
-                } else {
-                    throw new IOException("Неизвестный запрос");
+                }
+                switch (subPath) {
+                    case "load":
+                        respAndCode = loadMethod(method);
+                        break;
+                    case "task":
+                        respAndCode = taskMethod(query, method, body);
+                        break;
+                    case "history":
+                        respAndCode = historyMethod(method);
+                        break;
+                    default:
+                        respAndCode = new SingletonMap<>(ERROR_CODE, "Действие не удалось");
                 }
             } catch (Exception e) {
-                System.out.println("Действие не удалось");
-                respAndCode = new SingletonMap<>(ERROR_CODE, "Действие не удалось");
+                System.out.println("Ошибка при обращении к серверу");
             } finally {
                 httpExchange.sendResponseHeaders(respAndCode.getKey(), 0);
                 try (OutputStream os = httpExchange.getResponseBody()) {
                     os.write(respAndCode.getValue().getBytes(DEFAULT_CHARSET));
                 }
             }
-
-
         }
 
-        private SingletonMap<Integer, String>  notNullQuery(String method, String query) throws Exception {
-            int id = query.charAt(3) - 48;
-            if (id < 0 || !manager.getAllTask().containsKey(id)) {
-                throw new IllegalArgumentException("Такого id не существует");
-            }
+        private SingletonMap<Integer, String> taskMethod(String query, String method, String body) throws IOException, ManagerSaveException, ClassNotFoundException, AddEmptyElementException, ExceptionTaskIntersection {
+            int id = query == null ? -1 : query.charAt(3) - 48;
             switch (method) {
                 case "GET":
-                    return new SingletonMap<>(SUCCESSFUL_CODE, manager.getTask(id).toString());
+                    if (id < 0) {
+                        return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.getAllTask()));
+                    }
+                    return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.getAllTask().get(id)));
                 case "DELETE":
+                    if (id < 0) {
+                        manager.clearTaskMap();
+                        return new SingletonMap<>(SUCCESSFUL_CODE, "Список задач очищен");
+                    }
                     manager.deteteTask(id);
-                    return new SingletonMap<>(SUCCESSFUL_CODE, "Задача удалена");
+                    return new SingletonMap<>(SUCCESSFUL_CODE, "Задача с id = " + id + " удалена");
                 case "POST":
-                    if (query.indexOf("status") < 0) {
-                        throw new IllegalArgumentException("Отсутсвует информация о новом статусе");
+                    if (body.isEmpty() && query.indexOf("status") > 0 && manager.getAllTask().containsKey(id)) {
+                        TaskStatus taskStatus = TaskStatus.valueOf(query.substring(7).toUpperCase());
+                        manager.updateTaskStatus(id, taskStatus);
+                        return new SingletonMap<>(SUCCESSFUL_CODE, "Обновление статуса задачи "
+                                + manager.getAllTask().get(id).getTaskName() + " id " + id + " выполнено");
+                    } else if (id < 0) {
+                        Class className = Class.forName(taskTypeParser(body));
+                        AbstractTask task = (AbstractTask) gson.fromJson(body, className);
+                        manager.add(task);
+                        return new SingletonMap<>(SUCCESSFUL_CODE, "Новая задача добавлена");
                     }
-                    TaskStatus taskStatus = TaskStatus.valueOf(query.substring(7).toUpperCase());
-                    manager.updateTaskStatus(id, taskStatus);
-                    return new SingletonMap<>(SUCCESSFUL_CODE, "Обновление статуса задачи "
-                            + manager.getAllTask().get(id).getTaskName() + " id " + id + " выполнено");
+                    return new SingletonMap<>(ERROR_CODE, "Обновить список задач не получилось");
                 default:
-
-                    return new SingletonMap<>(ERROR_CODE,  "Запрос не обработан");
-            }
-        }
-
-        private SingletonMap<Integer, String> nullQuery(String method, String subPath, String body)
-                throws Exception {
-            switch (method) {
-                case "GET":
-                    if (subPath.equals("history")){
-                        return new SingletonMap<>(SUCCESSFUL_CODE, manager.history().toString());
-                    } else if (subPath.equals("load")) {
-                        manager = Managers.getHttpTaskManager(path, gson);
-                    }
-                    return new SingletonMap<>(SUCCESSFUL_CODE, manager.getAllTask().toString());
-                case "DELETE":
-                    manager.clearTaskMap();
-                    return new SingletonMap<>(SUCCESSFUL_CODE, "Список задач очищен");
-                case "POST":
-                    Class className = Class.forName(taskTypeParser(body));
-                    AbstractTask task = (AbstractTask) gson.fromJson(body, className);
-                    manager.add(task);
-                    return new SingletonMap<>(SUCCESSFUL_CODE, "Задача ");
-                default:
-                    System.out.println("Такого метода нет");
-                    return new SingletonMap<>(ERROR_CODE,  "Запрос не обработан");
+                    return new SingletonMap<>(ERROR_CODE, "Неизвестный запрос");
             }
         }
 
@@ -131,7 +120,22 @@ public class HttpTaskServer {
             JsonObject jsonObject = jsonElement.getAsJsonObject();
             return Formater.firstLettertoUpperCase(jsonObject.get("taskType").getAsString());
         }
+
+        private SingletonMap<Integer, String> historyMethod(String method) {
+            if (method.equals("GET")) {
+                return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.history()));
+            } else {
+                return new SingletonMap<>(ERROR_CODE, "Ошибка при отображении истории вызовов задач");
+            }
+        }
+
+        private SingletonMap<Integer, String> loadMethod(String method) throws Exception {
+            if (method.equals("GET")) {
+                manager = Managers.getHttpTaskManager(path, gson);
+                return new SingletonMap<>(SUCCESSFUL_CODE, "История загружена");
+            } else {
+                return new SingletonMap<>(ERROR_CODE, "История не загружена");
+            }
+        }
     }
-
-
 }

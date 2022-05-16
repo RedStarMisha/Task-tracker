@@ -57,7 +57,6 @@ public class KVServer {
                             h.sendResponseHeaders(400, 0);
                             return;
                         }
-                        Map<Integer, AbstractTask> map = gson.fromJson(value, Map.class);
                         data.put(key, value);
                         System.out.println("Значение для ключа " + key + " успешно обновлено!");
                         h.sendResponseHeaders(200, 0);

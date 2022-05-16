@@ -4,6 +4,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class FileBacketTaskManager extends InMemoryTaskManager implements Saveable {
 
@@ -12,7 +13,8 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      * @param historyManager
      * @throws Exception
      */
-    final Path path = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
+    Path path = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
+
 
 
     /**
@@ -20,14 +22,16 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      */
      public static boolean RECOVERY = true;
 
-    public FileBacketTaskManager(HistoryManager historyManager) throws Exception {
+    public FileBacketTaskManager(HistoryManager historyManager ) throws Exception {
         super(historyManager);
         fileRecoveryChecker();
     }
 
     public FileBacketTaskManager(HistoryManager historyManager, String newPath) throws Exception {
         super(historyManager);
+            //path = Path.of(newPath);  надо исправить
         fileRecoveryFromPath(newPath);
+
     }
 
     /**
@@ -47,9 +51,12 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
         }
     }
 
-    protected void fileRecoveryFromPath(String path) throws ManagerSaveException {
+    protected void fileRecoveryFromPath(String path) throws ManagerSaveException, IOException {
+
         if (path == null) {
             return;
+        } else if (!Files.exists(Path.of(path))) {
+            Files.createFile(Path.of(path));
         }
         Restorer.dataLoader(Path.of(path), this);
     }
@@ -57,6 +64,7 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
     @Override
     public void add(AbstractTask task) throws ManagerSaveException, AddEmptyElementException, ExceptionTaskIntersection {
         super.add(task);
+        System.out.println(this.getAllTask().toString());
         try {
             save();
         } catch (Exception e) {
