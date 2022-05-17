@@ -19,9 +19,6 @@ public class Main {
 
 
 
-
-
-
 //            manager.getTask(3);
 //            System.out.println(manager.history());
 //            manager.getTask(1);

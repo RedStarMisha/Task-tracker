@@ -1,7 +1,8 @@
 import com.google.gson.*;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.function.UnaryOperator;
+import java.util.stream.IntStream;
 
 public class HTTPTaskManager extends FileBacketTaskManager{
     KVTaskClient kvTaskClient;
@@ -13,50 +14,46 @@ public class HTTPTaskManager extends FileBacketTaskManager{
         kvTaskClient = new KVTaskClient(path, gson);
         this.gson = gson;
         if (RECOVERY) {
-            loadTasks();
-            loadHistory();
+            loadData("map");
+            loadData("history");
+        }
+    }
+
+    private void loadData(String key) throws IOException, InterruptedException {
+        String data = kvTaskClient.load(key);
+        if (!data.isEmpty()) {
+            JsonElement jsonElement = JsonParser.parseString(data);
+            UnaryOperator<JsonElement> jsObjConverter = (js) -> js.getAsJsonObject().get("taskType");
+            switch (data) {
+                case "map":
+                    JsonObject jsonObject = jsonElement.getAsJsonObject();
+                    jsonObject.keySet().stream()
+                            .map(str -> jsonObject.get(str))
+                            .map(jEl -> taskTypeChecker(jsObjConverter, jEl))
+                            .forEach(task -> taskMap.put(Integer.parseInt(key), task));
+                    break;
+                case "history":
+                    JsonArray jsonArray = jsonElement.getAsJsonArray();
+                    IntStream.range(0, jsonArray.size()).mapToObj(i -> jsonArray.get(i))
+                            .map(ob -> taskTypeChecker(jsObjConverter, ob))
+                            .forEach(task -> getHistoryManager().addTask(task));
+            }
         }
     }
 
     @Override
     public void save() throws Exception {
-        String map = gson.toJson(this.getAllTask());
+        String map = gson.toJson(getAllTask());
         kvTaskClient.put("map", map);
         String hist = gson.toJson(history());
-        kvTaskClient.put("hist", hist); //был history
+        kvTaskClient.put("history", hist);
     }
 
-    public void loadTasks() throws IOException, InterruptedException {
-        String tasks = kvTaskClient.load("map");
-        if (!tasks.isEmpty()) {
-            JsonElement jsonElement = JsonParser.parseString(tasks);
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            for (String key : jsonObject.keySet()) {
-                AbstractTask task = taskTypeChecker(jsonObject.get(key));
-                this.taskMap.put(Integer.parseInt(key), task);
-            }
-        }
-    }
-
-    public void loadHistory() throws IOException, InterruptedException {
-        String history = kvTaskClient.load("history");
-        if (!history.isEmpty()) {
-            JsonElement jsonElement = JsonParser.parseString(history);
-            JsonArray jsonObject = jsonElement.getAsJsonArray();
-            for (JsonElement task: jsonObject) {
-                this.getHistoryManager().addTask(taskTypeChecker(task));
-            }
-        }
-    }
-
-    private AbstractTask taskTypeChecker(JsonElement jsonElement) {
-        JsonObject jsonObject = jsonElement.getAsJsonObject();
-        String taskType = jsonObject.get("taskType").getAsString();
-        System.out.println(taskType);
+    private AbstractTask taskTypeChecker(UnaryOperator<JsonElement> f, JsonElement jsonElement) {
+        String taskType = f.apply(jsonElement).getAsString();
         switch (taskType){
             case "TASK":
-                Task task = gson.fromJson(jsonElement, Task.class);
-                return task;
+                return  gson.fromJson(jsonElement, Task.class);
             case "EPIC":
                 return gson.fromJson(jsonElement, EpicTask.class);
             case "SUBTASK":

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.util.Map;
 
 import static jdk.internal.util.xml.XMLStreamWriter.DEFAULT_CHARSET;
 
@@ -53,15 +54,15 @@ public class HttpTaskServer {
                 String method = httpExchange.getRequestMethod(); //Метод запроса
                 String body = new String(httpExchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET); //тело запроса
                 String query = httpExchange.getRequestURI().getQuery(); //Параметр в строке запроса
-                String subPath = httpExchange.getRequestURI().getPath().substring(7);  //Подпуть, то что идет после tasks
-                String[] sP = httpExchange.getRequestURI().getPath().split("/");
+                //String subPath = httpExchange.getRequestURI().getPath().substring(7);  //Подпуть, то что идет после tasks
+                String[] subPath = httpExchange.getRequestURI().getPath().split("/");
 
-                if (subPath.isEmpty() && method.equals("GET")) {
+                if (subPath[2].isEmpty() && method.equals("GET")) {
                     respAndCode = new SingletonMap<>(SUCCESSFUL_CODE , manager.getSortedTask().toString());
                 }
-                switch (subPath) {
+                switch (subPath[2]) {
                     case "load":
-                        respAndCode = loadMethod(method);
+                        respAndCode = loadMethod(method, subPath[3]);
                         break;
                     case "task":
                         respAndCode = taskMethod(query, method, body);
@@ -84,12 +85,13 @@ public class HttpTaskServer {
 
         private SingletonMap<Integer, String> taskMethod(String query, String method, String body) throws IOException, ManagerSaveException, ClassNotFoundException, AddEmptyElementException, ExceptionTaskIntersection {
             int id = query == null ? -1 : query.charAt(3) - 48;
+            Map<Integer, AbstractTask> localTaskMap = manager.getAllTask();
             switch (method) {
                 case "GET":
                     if (id < 0) {
-                        return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.getAllTask()));
+                        return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(localTaskMap));
                     }
-                    return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.getAllTask().get(id)));
+                    return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(localTaskMap.get(id)));
                 case "DELETE":
                     if (id < 0) {
                         manager.clearTaskMap();
@@ -98,11 +100,11 @@ public class HttpTaskServer {
                     manager.deteteTask(id);
                     return new SingletonMap<>(SUCCESSFUL_CODE, "Задача с id = " + id + " удалена");
                 case "POST":
-                    if (body.isEmpty() && query.indexOf("status") > 0 && manager.getAllTask().containsKey(id)) {
+                    if (body.isEmpty() && query.indexOf("status") > 0 && localTaskMap.containsKey(id)) {
                         TaskStatus taskStatus = TaskStatus.valueOf(query.substring(7).toUpperCase());
                         manager.updateTaskStatus(id, taskStatus);
                         return new SingletonMap<>(SUCCESSFUL_CODE, "Обновление статуса задачи "
-                                + manager.getAllTask().get(id).getTaskName() + " id " + id + " выполнено");
+                                + localTaskMap.get(id).getTaskName() + " id " + id + " выполнено");
                     } else if (id < 0) {
                         Class className = Class.forName(taskTypeParser(body));
                         AbstractTask task = (AbstractTask) gson.fromJson(body, className);
@@ -129,7 +131,7 @@ public class HttpTaskServer {
             }
         }
 
-        private SingletonMap<Integer, String> loadMethod(String method) throws Exception {
+        private SingletonMap<Integer, String> loadMethod(String method, String key) throws Exception {
             if (method.equals("GET")) {
                 manager = Managers.getHttpTaskManager(path, gson);
                 return new SingletonMap<>(SUCCESSFUL_CODE, "История загружена");

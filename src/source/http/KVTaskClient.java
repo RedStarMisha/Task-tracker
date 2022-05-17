@@ -44,7 +44,6 @@ public class KVTaskClient {
         System.out.println("Ответ в формате XML: " + response.body());
     }
 
-
     public String load(String key) throws IOException, InterruptedException {
         URI getUri = URI.create(baseURI + "/load/" + key + "?API_TOKEN=" + token);
         HttpRequest requestForLoad = HttpRequest.newBuilder()

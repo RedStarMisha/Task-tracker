@@ -111,15 +111,19 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void updateTaskStatus(int id, TaskStatus status) throws ManagerSaveException, NoSuchElementException {
+        containsKeyFromTaskMap(id);
         switch (taskMap.get(id).getTaskType()) {
             case TASK:
                 taskMap.replace(id, new Task(taskMap.get(id), status));
+                break;
             case EPICTASK:
                 System.out.println("Сначала обновите статус подзадач");
+                break;
             case SUBTASK:
                 SubTask updatedSubtask = new SubTask(taskMap.get(id), status);
                 taskMap.replace(id, updatedSubtask);
                 epicStatusChecker(updatedSubtask.getEpicTaskId(), status);
+                break;
             default:
                 throw new NoSuchElementException("Задачи с таким типом не существует");
         }
@@ -128,13 +132,14 @@ public class InMemoryTaskManager implements TaskManager {
     private void epicStatusChecker(int epicId, TaskStatus statusForNewSubTask) {
         EpicTask updatedEpic = (EpicTask) taskMap.get(epicId);
         if (updatedEpic.getTaskStatus() != statusForNewSubTask) {
-            Set<TaskStatus> taskStatusSet = new HashSet<>();
-            for (int subtaskId : updatedEpic.getSubTaskListId()) {
-                taskStatusSet.add(taskMap.get(subtaskId).getTaskStatus());
-            }
-            if (taskStatusSet.contains(TaskStatus.NEW) && taskStatusSet.size() == 1) {
+            Set<TaskStatus> subtaskStatusChecker = new HashSet<>();
+            updatedEpic.getSubTaskListId().forEach(ind -> subtaskStatusChecker.add(taskMap.get(ind).getTaskStatus()));
+//            for (int subtaskId : updatedEpic.getSubTaskListId()) {
+//                subtaskStatusChecker.add(taskMap.get(subtaskId).getTaskStatus());
+//            }
+            if (subtaskStatusChecker.contains(TaskStatus.NEW) && subtaskStatusChecker.size() == 1) {
                 taskMap.replace(epicId, new EpicTask(updatedEpic, TaskStatus.NEW));
-            } else if (taskStatusSet.contains(TaskStatus.DONE) && taskStatusSet.size() == 1) {
+            } else if (subtaskStatusChecker.contains(TaskStatus.DONE) && subtaskStatusChecker.size() == 1) {
                 taskMap.replace(epicId, new EpicTask(updatedEpic, TaskStatus.DONE));
             } else {
                 taskMap.replace(epicId, new EpicTask(updatedEpic, TaskStatus.IN_PROGRESS));
@@ -151,12 +156,12 @@ public class InMemoryTaskManager implements TaskManager {
             TaskSorter.remove(sortedTask,taskMap.get(taskId));
         };
         if (taskMap.get(id) instanceof EpicTask) {
-            for (Integer subTaskid : ((EpicTask) taskMap.get(id)).getSubTaskListId()) {
-                stepToRemove.accept(subTaskid);
-            }
+            ((EpicTask) taskMap.get(id)).getSubTaskListId().stream().forEach(stepToRemove);
         }
         stepToRemove.accept(id);
     }
+
+
 
     public TreeSet<AbstractTask> getSortedTask() {
         return sortedTask;

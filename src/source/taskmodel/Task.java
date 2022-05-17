@@ -12,5 +12,4 @@ public class Task extends AbstractTask {
     public Task(AbstractTask task, TaskStatus tastStatus) {
         super(task, tastStatus);
     }
-
 }
