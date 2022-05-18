@@ -11,8 +11,8 @@ class InMemoryHistoryManagerTest {
     static Task task3;
     static Task task4;
     static Task task5;
-    static EpicTask epicTask;
-    static SubTask subTask;
+    static Epictask epicTask;
+    static Subtask subTask;
 
 
     HistoryManager historyManager;
@@ -35,9 +35,9 @@ class InMemoryHistoryManagerTest {
                 4,TaskStatus.NEW, "12-01-2022, 12:00",20);
         task5 = new Task("Убраться на кухне",
                 "Необходимо провести полную уборку кухни", 5, TaskStatus.NEW, "12-01-2022, 13:00",40);
-        epicTask = new EpicTask("Сходить в магазин",
+        epicTask = new Epictask("Сходить в магазин",
                 "Гипермаркет", 6, TaskStatus.NEW, "12-01-2022, 13:00",120);
-        subTask = new SubTask("Купить курочку",
+        subTask = new Subtask("Купить курочку",
                 "Петелинка", 7, TaskStatus.NEW, "12-01-2022, 13:20",15,6);
     }
 

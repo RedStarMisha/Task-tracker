@@ -21,13 +21,13 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      */
      public static boolean RECOVERY = true;
 
-    public FileBacketTaskManager(HistoryManager historyManager ) throws Exception {
-        super(historyManager);
+    public FileBacketTaskManager() throws Exception {
+        super();
         fileRecoveryChecker();
     }
 
-    public FileBacketTaskManager(HistoryManager historyManager, String newPath) throws Exception {
-        super(historyManager);
+    public FileBacketTaskManager(String newPath) throws Exception {
+        super();
             //path = Path.of(newPath);  надо исправить
         fileRecoveryFromPath(newPath);
 

@@ -16,6 +16,10 @@ public class Main {
 //            new KVServer().start();
 //            manager = Managers.getHttpTaskManager("http://localhost:8080", gson);
 
+//            String hist = new Gson().toJson(new ArrayList<>());
+//            System.out.println(hist.isEmpty());
+//            hist = new Gson().toJson(new Managers());
+//            System.out.println(hist);
 
 
 
@@ -42,21 +46,21 @@ public class Main {
         manager.add(new Task("Поменять лампочку на кухне",
                 "Выкрутить старую лампочку, правильно ее утилизировать и вкрутить новую",
                 manager.setIdNumeration(), TaskStatus.NEW, "12-01-2022, 16:00",10));
-        manager.add(new EpicTask("Убраться на кухне",
+        manager.add(new Epictask("Убраться на кухне",
                 "Необходимо провести полную уборку кухни", manager.setIdNumeration(), TaskStatus.NEW,
                 "15-01-2022, 11:00",20));
-        manager.add(new SubTask("Помыть посуду", "Посуда должна быть чистой",
+        manager.add(new Subtask("Помыть посуду", "Посуда должна быть чистой",
                 manager.setIdNumeration(), TaskStatus.IN_PROGRESS, "12-01-2022, 17:05",40,
                 2));
-        manager.add(new SubTask("Убрать со стола",
+        manager.add(new Subtask("Убрать со стола",
                 "Убрать грязную посуду, стереть со стола", manager.setIdNumeration(), TaskStatus.DONE,
                 "15-01-2022, 11:50",10,2));
-        manager.add(new EpicTask("Убраться в спальне",
+        manager.add(new Epictask("Убраться в спальне",
                 "Провести быструю уборку в спальной комнате", manager.setIdNumeration(), TaskStatus.NEW));
-        manager.add(new SubTask("Убрать постель",
+        manager.add(new Subtask("Убрать постель",
                 "Убрать одеяла и застелить постель", manager.setIdNumeration(), TaskStatus.NEW,
                 "14-01-2022, 09:00",5, 5));
-        manager.add(new EpicTask("Приготовить ужин",
+        manager.add(new Epictask("Приготовить ужин",
                 "Приготовить ужин на двоих", manager.setIdNumeration(), TaskStatus.NEW));
     }
 }

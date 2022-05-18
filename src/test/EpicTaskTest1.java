@@ -8,15 +8,15 @@ class EpicTaskTest1 {
     @BeforeEach
     public void createTastManager() throws Exception {
         inMemoryTaskManager = Managers.getDefault();
-        inMemoryTaskManager.add(new EpicTask("помыть кота", "кот дожен быть чистым",
+        inMemoryTaskManager.add(new Epictask("помыть кота", "кот дожен быть чистым",
                 inMemoryTaskManager.setIdNumeration(), TaskStatus.NEW));
     }
 
     public void createTwoSubTaskWithStatus(TaskStatus fitstStatus, TaskStatus secondStatus)
             throws ManagerSaveException, AddEmptyElementException, ExceptionTaskIntersection {
-        inMemoryTaskManager.add(new SubTask("Наполнить ванную", "Температура должна быть норм",
+        inMemoryTaskManager.add(new Subtask("Наполнить ванную", "Температура должна быть норм",
                 inMemoryTaskManager.setIdNumeration(), fitstStatus, 1));
-        inMemoryTaskManager.add(new SubTask("Принести полотенце", "Выбрать самое чистое полотенце",
+        inMemoryTaskManager.add(new Subtask("Принести полотенце", "Выбрать самое чистое полотенце",
                 inMemoryTaskManager.setIdNumeration(), secondStatus, 1));
     }
 

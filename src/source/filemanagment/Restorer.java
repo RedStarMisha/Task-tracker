@@ -84,7 +84,7 @@ public class Restorer {
                     TaskStatus.valueOf(history[4]), history[5], Long.parseLong(history[6])));
         } else if (history[0].equals("EPICTASK")) {
             if (history.length == 7) {
-                taskMap.put(Integer.parseInt(history[1]), new EpicTask(history[2], history[3],
+                taskMap.put(Integer.parseInt(history[1]), new Epictask(history[2], history[3],
                         Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), history[5],
                         Long.parseLong(history[6])));
             } else {
@@ -92,12 +92,12 @@ public class Restorer {
                 for (String subTaskId : history[7].split(",")) {
                     subTaskList.add(Integer.parseInt(subTaskId));
                 }
-                taskMap.put(Integer.parseInt(history[1]), new EpicTask(history[2], history[3],
+                taskMap.put(Integer.parseInt(history[1]), new Epictask(history[2], history[3],
                         Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), history[5],
                         Long.parseLong(history[6]), subTaskList));
             }
         } else if (history[0].equals("SUBTASK")) {
-            taskMap.put(Integer.parseInt(history[1]), new SubTask(history[2], history[3],
+            taskMap.put(Integer.parseInt(history[1]), new Subtask(history[2], history[3],
                     Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), history[5],
                     Long.parseLong(history[6]), Integer.parseInt(history[7]) ));
         }
@@ -109,18 +109,18 @@ public class Restorer {
                     TaskStatus.valueOf(history[4])));
         } else if (history[0].equals("EPICTASK")) {
             if (history.length == 5) {
-                taskMap.put(Integer.parseInt(history[1]), new EpicTask(history[2],
+                taskMap.put(Integer.parseInt(history[1]), new Epictask(history[2],
                         history[3], Integer.parseInt(history[1]), TaskStatus.valueOf(history[4])));
             } else {
                 List<Integer> subTaskList = new ArrayList<>();
                 for (String subTaskId : history[5].split(",")) {
                     subTaskList.add(Integer.parseInt(subTaskId));
                 }
-                taskMap.put(Integer.parseInt(history[1]), new EpicTask(history[2], history[3],
+                taskMap.put(Integer.parseInt(history[1]), new Epictask(history[2], history[3],
                         Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), subTaskList));
             }
         } else if (history[0].equals("SUBTASK")) {
-            taskMap.put(Integer.parseInt(history[1]), new SubTask(history[2], history[3],
+            taskMap.put(Integer.parseInt(history[1]), new Subtask(history[2], history[3],
                     Integer.parseInt(history[1]), TaskStatus.valueOf(history[4]), Integer.parseInt(history[5])));
         }
     }

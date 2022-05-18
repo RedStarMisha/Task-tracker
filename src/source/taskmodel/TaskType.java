@@ -8,9 +8,9 @@ public enum TaskType {
         switch(type) {
             case "class Task":
                 return TASK;
-            case "class EpicTask":
+            case "class Epictask":
                 return EPICTASK;
-            case "class SubTask":
+            case "class Subtask":
                 return SUBTASK;
             default:
                 return UNIDENTIFIED_TASK;

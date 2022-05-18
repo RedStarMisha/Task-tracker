@@ -3,7 +3,7 @@ import java.util.Collection;
 public class TaskSorter {
 
     public static void add(Collection<AbstractTask> set, AbstractTask task) {
-        if (task instanceof EpicTask) {
+        if (task instanceof Epictask) {
             return;
         }
         set.add(task);

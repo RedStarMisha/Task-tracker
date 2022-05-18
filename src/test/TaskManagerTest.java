@@ -12,18 +12,18 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class TaskManagerTest<T extends TaskManager> {
     public T taskManager;
     Task task;
-    EpicTask epicTask;
-    SubTask subTask;
-    SubTask subTaskTwo;
+    Epictask epicTask;
+    Subtask subTask;
+    Subtask subTaskTwo;
 
     abstract void createTaskManager() throws Exception;
 
     void createAndAddThreeTaskWithoutDate() throws Exception {
         task = new Task("Приготовить ужин", "Запечь рыбу в духовке",
                 1, TaskStatus.NEW);
-        epicTask = new EpicTask("Убраться на кухне",
+        epicTask = new Epictask("Убраться на кухне",
                 "Необходимо провести полную уборку кухни", 2, TaskStatus.NEW);
-        subTask = new SubTask("Помыть посуду", "Посуда должна быть чистой",
+        subTask = new Subtask("Помыть посуду", "Посуда должна быть чистой",
                 3, TaskStatus.IN_PROGRESS,2);
         taskManager.add(task);
         taskManager.add(epicTask);

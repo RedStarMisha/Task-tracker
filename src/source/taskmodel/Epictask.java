@@ -2,36 +2,36 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EpicTask extends AbstractTask {
+public class Epictask extends AbstractTask {
     private List<Integer> subTaskListId = new ArrayList<>();
     private LocalDateTime endTime;
 
-    public EpicTask (String taskName, String taskDescription, int taskId, TaskStatus tastStatus) {
+    public Epictask(String taskName, String taskDescription, int taskId, TaskStatus tastStatus) {
         super(taskName, taskDescription, taskId, tastStatus);
     }
 
-    public EpicTask (String taskName, String taskDescription, int taskId, TaskStatus tastStatus,
-                     String startTime, long duration) throws Exception {
+    public Epictask(String taskName, String taskDescription, int taskId, TaskStatus tastStatus,
+                    String startTime, long duration) throws Exception {
         super(taskName, taskDescription, taskId, tastStatus, startTime, duration);
-        this.endTime = super.getEndTime();
+        this.endTime = super.getStartTime().plus(super.getDuration());
     }
 
-    public EpicTask(String taskName, String tastDescription, int taskId,
+    public Epictask(String taskName, String tastDescription, int taskId,
                     TaskStatus tastStatus, List<Integer> subTaskListId) {
         super(taskName, tastDescription, taskId, tastStatus);
         this.subTaskListId = subTaskListId;
     }
 
-    public EpicTask (String taskName, String tastDescription, int taskId, TaskStatus tastStatus,
-                     String startTime, long duration, List<Integer> subTaskListId) throws Exception {
+    public Epictask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus,
+                    String startTime, long duration, List<Integer> subTaskListId) throws Exception {
         super(taskName, tastDescription, taskId, tastStatus, startTime, duration);
         this.endTime = super.getStartTime().plus(super.getDuration());
         this.subTaskListId = subTaskListId;
     }
 
-    public EpicTask(AbstractTask task, TaskStatus tastStatus) {
+    public Epictask(AbstractTask task, TaskStatus tastStatus) {
         super(task, tastStatus);
-        EpicTask epicTask = (EpicTask) task;
+        Epictask epicTask = (Epictask) task;
         this.subTaskListId = epicTask.getSubTaskListId();
         if (epicTask.endTime != null) {
             this.endTime = epicTask.getEndTime();

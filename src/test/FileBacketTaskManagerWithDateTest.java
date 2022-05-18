@@ -36,7 +36,7 @@ public class FileBacketTaskManagerWithDateTest extends TaskManagerWithDateTest{
     void shouldRecoverDateInfoFromFile() throws Exception {
         super.createAndAddThreeTaskWithDate();
         String pathTest = System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt";
-        TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
+        TaskManager localTaskManager = new FileBacketTaskManager(pathTest);
         assertAll(
                 () -> assertFalse(localTaskManager.getAllTask().isEmpty()),
                 () -> assertEquals(taskManager.getTask(1).getStartTime(),

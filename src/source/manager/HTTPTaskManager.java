@@ -7,36 +7,39 @@ import java.util.stream.IntStream;
 public class HTTPTaskManager extends FileBacketTaskManager{
     KVTaskClient kvTaskClient;
     Gson gson;
+    public final static String TASKMAP_KEY = "taskmap";
+    public final static String HISTORY_KEY = "history";
 
 
-    public HTTPTaskManager(HistoryManager historyManager, String path, Gson gson) throws Exception {
-        super(historyManager, null);
+    public HTTPTaskManager(String path, Gson gson) throws Exception {
+        super(null);
         kvTaskClient = new KVTaskClient(path, gson);
         this.gson = gson;
         if (RECOVERY) {
-            loadData("map");
-            loadData("history");
+            loadData(TASKMAP_KEY);
+            loadData(HISTORY_KEY);
         }
     }
 
     private void loadData(String key) throws IOException, InterruptedException {
         String data = kvTaskClient.load(key);
-        if (!data.isEmpty()) {
+        if (data.length() > 2) {
             JsonElement jsonElement = JsonParser.parseString(data);
             UnaryOperator<JsonElement> jsObjConverter = (js) -> js.getAsJsonObject().get("taskType");
-            switch (data) {
-                case "map":
+            switch (key) {
+                case TASKMAP_KEY:
                     JsonObject jsonObject = jsonElement.getAsJsonObject();
                     jsonObject.keySet().stream()
                             .map(str -> jsonObject.get(str))
                             .map(jEl -> taskTypeChecker(jsObjConverter, jEl))
-                            .forEach(task -> taskMap.put(Integer.parseInt(key), task));
+                            .forEach(task -> taskMap.put(task.getTaskId(), task));
                     break;
-                case "history":
+                case HISTORY_KEY:
                     JsonArray jsonArray = jsonElement.getAsJsonArray();
                     IntStream.range(0, jsonArray.size()).mapToObj(i -> jsonArray.get(i))
                             .map(ob -> taskTypeChecker(jsObjConverter, ob))
                             .forEach(task -> getHistoryManager().addTask(task));
+                    break;
             }
         }
     }
@@ -44,9 +47,9 @@ public class HTTPTaskManager extends FileBacketTaskManager{
     @Override
     public void save() throws Exception {
         String map = gson.toJson(getAllTask());
-        kvTaskClient.put("map", map);
+        kvTaskClient.put(TASKMAP_KEY, map);
         String hist = gson.toJson(history());
-        kvTaskClient.put("history", hist);
+        kvTaskClient.put(HISTORY_KEY, hist);
     }
 
     private AbstractTask taskTypeChecker(UnaryOperator<JsonElement> f, JsonElement jsonElement) {
@@ -55,9 +58,9 @@ public class HTTPTaskManager extends FileBacketTaskManager{
             case "TASK":
                 return  gson.fromJson(jsonElement, Task.class);
             case "EPIC":
-                return gson.fromJson(jsonElement, EpicTask.class);
+                return gson.fromJson(jsonElement, Epictask.class);
             case "SUBTASK":
-                return gson.fromJson(jsonElement, SubTask.class);
+                return gson.fromJson(jsonElement, Subtask.class);
             default:
                 return null;
         }

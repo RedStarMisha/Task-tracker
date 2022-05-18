@@ -1,10 +1,11 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 public class MyLinkedList<T> {
-    Node<T> head;
-    Node<T> tail;
+    private Node<T> head;
+    private Node<T> tail;
     int size;
 
 
@@ -101,11 +102,24 @@ public class MyLinkedList<T> {
 
     @Override
     public String toString() {
-        String result = "[";
+        String result = "";
         for (Node i = head; i != null; i = i.next) {
-            result += i.next == null ? i.element + "]" : i.element + ", ";
+            result += i.next == null ? i.element : i.element + ", ";
         }
         return result;
+    }
+
+    public void clear() {
+        Node<T> node = head;
+        while (node.next != null) {
+            Node<T> x = node.next;
+            node.element = null;
+            node.previous = null;
+            node.next = null;
+            node = x;
+        }
+        head = tail = null;
+        node = null;
     }
 
 

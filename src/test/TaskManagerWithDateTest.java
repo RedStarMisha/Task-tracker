@@ -8,21 +8,21 @@ public abstract class TaskManagerWithDateTest<T extends TaskManager> {
 
     public T taskManager;
     Task task;
-    EpicTask epicTask;
-    SubTask subTask;
-    SubTask subTaskTwo;
+    Epictask epicTask;
+    Subtask subTask;
+    Subtask subTaskTwo;
 
 
     void createAndAddThreeTaskWithDate() throws Exception {
         task = new Task("Приготовить ужин", "Запечь рыбу в духовке",
                 1, TaskStatus.NEW,"12-01-2022, 16:00",50);
-        epicTask = new EpicTask("Убраться на кухне",
+        epicTask = new Epictask("Убраться на кухне",
                 "Необходимо провести полную уборку кухни", 2, TaskStatus.NEW,
                 "13-01-2022, 16:00", 120);
-        subTask = new SubTask("Помыть посуду", "Посуда должна быть чистой",
+        subTask = new Subtask("Помыть посуду", "Посуда должна быть чистой",
                 3, TaskStatus.IN_PROGRESS,"13-01-2022, 15:00",
                 20, 2);
-        subTaskTwo = new SubTask("Помыть посуду", "Посуда должна быть чистой",
+        subTaskTwo = new Subtask("Помыть посуду", "Посуда должна быть чистой",
                 4, TaskStatus.IN_PROGRESS,"14-01-2022, 15:00",
                 20, 2);
         taskManager.add(task);

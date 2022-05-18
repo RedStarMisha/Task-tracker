@@ -126,7 +126,7 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
         super.createAndAddThreeTaskWithoutDate();
         String pathTest = System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt";
         FileBacketTaskManager.RECOVERY = false;
-        TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
+        TaskManager localTaskManager = new FileBacketTaskManager(pathTest);
         assertAll(
                 () ->assertFalse(localTaskManager.getAllTask().isEmpty()),
                 () ->assertEquals(taskManager.getTask(1), localTaskManager.getTask(1)),
@@ -141,13 +141,13 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
         //taskManager = Managers.getFileManagerWithoutRecovery();
         Task localTask = new Task("Приготовить ужин", "Запечь рыбу в духовке",
                 1, TaskStatus.NEW, "12-01-2022, 16:00", 10);
-        EpicTask localEpicTask = new EpicTask("Убраться на кухне",
+        Epictask localEpicTask = new Epictask("Убраться на кухне",
                 "Необходимо провести полную уборку кухни", 2, TaskStatus.NEW);
         taskManager.add(localTask);
         taskManager.add(localEpicTask);
         String pathTest = System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt";
         FileBacketTaskManager.RECOVERY = true;
-        TaskManager localTaskManager = new FileBacketTaskManager(Managers.getDefaultHistory(), pathTest);
+        TaskManager localTaskManager = new FileBacketTaskManager(pathTest);
         assertAll(
                 () ->assertFalse(localTaskManager.getAllTask().isEmpty()),
                 () ->assertEquals(taskManager.getTask(1), localTaskManager.getTask(1)),

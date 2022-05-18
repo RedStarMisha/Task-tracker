@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import static jdk.internal.util.xml.XMLStreamWriter.DEFAULT_CHARSET;
 
@@ -54,10 +56,9 @@ public class HttpTaskServer {
                 String method = httpExchange.getRequestMethod(); //Метод запроса
                 String body = new String(httpExchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET); //тело запроса
                 String query = httpExchange.getRequestURI().getQuery(); //Параметр в строке запроса
-                //String subPath = httpExchange.getRequestURI().getPath().substring(7);  //Подпуть, то что идет после tasks
                 String[] subPath = httpExchange.getRequestURI().getPath().split("/");
 
-                if (subPath[2].isEmpty() && method.equals("GET")) {
+                if (subPath.length < 3 && method.equals("GET")) {
                     respAndCode = new SingletonMap<>(SUCCESSFUL_CODE , manager.getSortedTask().toString());
                 }
                 switch (subPath[2]) {
@@ -83,7 +84,7 @@ public class HttpTaskServer {
             }
         }
 
-        private SingletonMap<Integer, String> taskMethod(String query, String method, String body) throws IOException, ManagerSaveException, ClassNotFoundException, AddEmptyElementException, ExceptionTaskIntersection {
+        private SingletonMap<Integer, String> taskMethod(String query, String method, String body) throws Exception {
             int id = query == null ? -1 : query.charAt(3) - 48;
             Map<Integer, AbstractTask> localTaskMap = manager.getAllTask();
             switch (method) {
@@ -91,7 +92,7 @@ public class HttpTaskServer {
                     if (id < 0) {
                         return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(localTaskMap));
                     }
-                    return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(localTaskMap.get(id)));
+                    return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.getTask(id)));
                 case "DELETE":
                     if (id < 0) {
                         manager.clearTaskMap();
@@ -107,6 +108,14 @@ public class HttpTaskServer {
                                 + localTaskMap.get(id).getTaskName() + " id " + id + " выполнено");
                     } else if (id < 0) {
                         Class className = Class.forName(taskTypeParser(body));
+                        if (className.equals(Subtask.class)) {
+                            Subtask subtask = (Subtask) gson.fromJson(body, className);
+                            Predicate<Map<Integer, AbstractTask>> containsId = map ->
+                                map.containsKey(subtask.getEpicTaskId());
+                            if (!containsId.test(manager.getAllTask())) {
+                                return new SingletonMap<>(ERROR_CODE, "Новая задача добавлена");
+                            }
+                        }
                         AbstractTask task = (AbstractTask) gson.fromJson(body, className);
                         manager.add(task);
                         return new SingletonMap<>(SUCCESSFUL_CODE, "Новая задача добавлена");
@@ -126,18 +135,20 @@ public class HttpTaskServer {
         private SingletonMap<Integer, String> historyMethod(String method) {
             if (method.equals("GET")) {
                 return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.history()));
-            } else {
-                return new SingletonMap<>(ERROR_CODE, "Ошибка при отображении истории вызовов задач");
             }
+            return new SingletonMap<>(ERROR_CODE, "Ошибка при отображении истории вызовов задач");
         }
 
         private SingletonMap<Integer, String> loadMethod(String method, String key) throws Exception {
-            if (method.equals("GET")) {
-                manager = Managers.getHttpTaskManager(path, gson);
-                return new SingletonMap<>(SUCCESSFUL_CODE, "История загружена");
-            } else {
-                return new SingletonMap<>(ERROR_CODE, "История не загружена");
-            }
+                if (key.equals(HTTPTaskManager.TASKMAP_KEY) && method.equals("GET")) {
+                    manager = Managers.getHttpTaskManager(path, gson);
+                    return new SingletonMap<>(SUCCESSFUL_CODE, "Данные менеджера задач загружены с сервера");
+                } else if (key.equals(HTTPTaskManager.HISTORY_KEY) && method.equals("GET")) {
+                    manager = Managers.getHttpTaskManager(path, gson);
+                    return new SingletonMap<>(SUCCESSFUL_CODE, "Данные менеджера задач загружены с сервера");
+                } else {
+                    return new SingletonMap<>(ERROR_CODE, "Неизвестная команда");
+                }
         }
     }
 }

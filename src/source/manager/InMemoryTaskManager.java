@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 public class InMemoryTaskManager implements TaskManager {
     private int id = 1;
     protected Map<Integer, AbstractTask> taskMap = new HashMap<>();
-    private final HistoryManager historyManager;
+    private HistoryManager historyManager;
 
 
     /**
@@ -32,8 +32,8 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager;
     }
 
-    public InMemoryTaskManager(HistoryManager historyManager) {
-        this.historyManager = historyManager;
+    public InMemoryTaskManager() {
+        this.historyManager = Managers.getDefaultHistory();
     }
 
     @Override
@@ -44,20 +44,20 @@ public class InMemoryTaskManager implements TaskManager {
         taskIntersectionChecker(task);
         taskMap.put(task.getTaskId(), task);
         TaskSorter.add(sortedTask , task);
-        if (task instanceof SubTask) {
-            addSubTask((SubTask) task);
+        if (task instanceof Subtask) {
+            addSubTask((Subtask) task);
         }
         System.out.println("Задача '" + task.getTaskName() + "' добавлена, id = " + task.getTaskId());
     }
 
-    private void addSubTask(SubTask task) {
-        EpicTask epicForSubTask = (EpicTask) taskMap.get(task.getEpicTaskId());
+    private void addSubTask(Subtask task) {
+        Epictask epicForSubTask = (Epictask) taskMap.get(task.getEpicTaskId());
         dateEpicChecker(epicForSubTask, task);
         epicForSubTask.addSubTask(task.getTaskId());
         epicStatusChecker(task.getEpicTaskId(), task.getTaskStatus());
     }
 
-    private void dateEpicChecker(EpicTask epicTask, SubTask task) {
+    private void dateEpicChecker(Epictask epicTask, Subtask task) {
         if (task.getDuration() != null && task.getStartTime() != null) {
             if (epicTask.getStartTime() == null || task.getStartTime().isBefore(epicTask.getStartTime())) {
                 epicTask.setStartTime(task.getStartTime());
@@ -70,7 +70,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void taskIntersectionChecker(AbstractTask task) throws ExceptionTaskIntersection {
-        if (task instanceof EpicTask || task.getStartTime() == null) {
+        if (task instanceof Epictask || task.getStartTime() == null) {
             return;
         }
         AbstractTask lowerTask = sortedTask.lower(task);
@@ -107,6 +107,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void clearTaskMap() {
         taskMap.clear();
         sortedTask.clear();
+        historyManager = Managers.getDefaultHistory();
         id = 1;
     }
 
@@ -120,7 +121,7 @@ public class InMemoryTaskManager implements TaskManager {
                 System.out.println("Сначала обновите статус подзадач");
                 break;
             case SUBTASK:
-                SubTask updatedSubtask = new SubTask(taskMap.get(id), status);
+                Subtask updatedSubtask = new Subtask(taskMap.get(id), status);
                 taskMap.replace(id, updatedSubtask);
                 epicStatusChecker(updatedSubtask.getEpicTaskId(), status);
                 break;
@@ -130,19 +131,16 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void epicStatusChecker(int epicId, TaskStatus statusForNewSubTask) {
-        EpicTask updatedEpic = (EpicTask) taskMap.get(epicId);
+        Epictask updatedEpic = (Epictask) taskMap.get(epicId);
         if (updatedEpic.getTaskStatus() != statusForNewSubTask) {
             Set<TaskStatus> subtaskStatusChecker = new HashSet<>();
             updatedEpic.getSubTaskListId().forEach(ind -> subtaskStatusChecker.add(taskMap.get(ind).getTaskStatus()));
-//            for (int subtaskId : updatedEpic.getSubTaskListId()) {
-//                subtaskStatusChecker.add(taskMap.get(subtaskId).getTaskStatus());
-//            }
             if (subtaskStatusChecker.contains(TaskStatus.NEW) && subtaskStatusChecker.size() == 1) {
-                taskMap.replace(epicId, new EpicTask(updatedEpic, TaskStatus.NEW));
+                taskMap.replace(epicId, new Epictask(updatedEpic, TaskStatus.NEW));
             } else if (subtaskStatusChecker.contains(TaskStatus.DONE) && subtaskStatusChecker.size() == 1) {
-                taskMap.replace(epicId, new EpicTask(updatedEpic, TaskStatus.DONE));
+                taskMap.replace(epicId, new Epictask(updatedEpic, TaskStatus.DONE));
             } else {
-                taskMap.replace(epicId, new EpicTask(updatedEpic, TaskStatus.IN_PROGRESS));
+                taskMap.replace(epicId, new Epictask(updatedEpic, TaskStatus.IN_PROGRESS));
             }
         }
     }
@@ -155,8 +153,8 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.remove(taskId);
             TaskSorter.remove(sortedTask,taskMap.get(taskId));
         };
-        if (taskMap.get(id) instanceof EpicTask) {
-            ((EpicTask) taskMap.get(id)).getSubTaskListId().stream().forEach(stepToRemove);
+        if (taskMap.get(id) instanceof Epictask) {
+            ((Epictask) taskMap.get(id)).getSubTaskListId().stream().forEach(stepToRemove);
         }
         stepToRemove.accept(id);
     }

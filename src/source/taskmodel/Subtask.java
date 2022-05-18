@@ -1,20 +1,20 @@
-public class SubTask extends AbstractTask{
+public class Subtask extends AbstractTask{
     private final int epicTaskId;
 
-    public SubTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus,
+    public Subtask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus,
                    String startTime, long duration, int epicTaskId) throws Exception {
         super(taskName, tastDescription, taskId, tastStatus, startTime, duration);
         this.epicTaskId = epicTaskId;
     }
 
-    public SubTask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus, int epicTaskId) {
+    public Subtask(String taskName, String tastDescription, int taskId, TaskStatus tastStatus, int epicTaskId) {
         super(taskName, tastDescription, taskId, tastStatus);
         this.epicTaskId = epicTaskId;
     }
 
-    public SubTask(AbstractTask task, TaskStatus tastStatus) {
+    public Subtask(AbstractTask task, TaskStatus tastStatus) {
         super(task, tastStatus);
-        SubTask subTask = (SubTask) task;
+        Subtask subTask = (Subtask) task;
         this.epicTaskId = subTask.getEpicTaskId();
     }
 
