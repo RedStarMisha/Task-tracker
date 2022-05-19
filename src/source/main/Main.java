@@ -14,17 +14,6 @@ public class Main {
             httpTaskServer.createServer();
 
 
-
-//            new KVServer().start();
-//            manager = Managers.getHttpTaskManager("http://localhost:8080", gson);
-
-//            String hist = new Gson().toJson(new ArrayList<>());
-//            System.out.println(hist.isEmpty());
-//            hist = new Gson().toJson(new Managers());
-//            System.out.println(hist);
-
-
-
 //            manager.getTask(3);
 //            System.out.println(manager.history());
 //            manager.getTask(1);

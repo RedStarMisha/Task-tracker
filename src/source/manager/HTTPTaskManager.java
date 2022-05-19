@@ -1,7 +1,6 @@
 import com.google.gson.*;
 
 import java.io.IOException;
-import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
 
 public class HTTPTaskManager extends FileBacketTaskManager{
@@ -24,20 +23,19 @@ public class HTTPTaskManager extends FileBacketTaskManager{
     private void loadData(String key) throws IOException, InterruptedException {
         String data = kvTaskClient.load(key);
         if (data.length() > 2) {
-            JsonElement jsonElement = JsonParser.parseString(data);
-            UnaryOperator<JsonElement> jsObjConverter = (js) -> js.getAsJsonObject().get("taskType");
+            JsonElement jsonElementTaskMap = JsonParser.parseString(data);
             switch (key) {
                 case TASKMAP_KEY:
-                    JsonObject jsonObject = jsonElement.getAsJsonObject();
-                    jsonObject.keySet().stream()
-                            .map(str -> jsonObject.get(str))
-                            .map(jEl -> ManagerUtil.taskTypeChecker(jsObjConverter, jEl))
+                    JsonObject jsonObjectTaskMap = jsonElementTaskMap.getAsJsonObject();
+                    jsonObjectTaskMap.keySet().stream()
+                            .map(str -> jsonObjectTaskMap.get(str))
+                            .map(jEl -> ManagerUtil.taskTypeChecker(jEl))
                             .forEach(task -> taskMap.put(task.getTaskId(), task));
                     break;
                 case HISTORY_KEY:
-                    JsonArray jsonArray = jsonElement.getAsJsonArray();
+                    JsonArray jsonArray = jsonElementTaskMap.getAsJsonArray();
                     IntStream.range(0, jsonArray.size()).mapToObj(i -> jsonArray.get(i))
-                            .map(ob -> ManagerUtil.taskTypeChecker(jsObjConverter, ob))
+                            .map(ob -> ManagerUtil.taskTypeChecker(ob))
                             .forEach(task -> getHistoryManager().addTask(task));
                     break;
             }

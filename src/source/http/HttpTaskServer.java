@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.function.UnaryOperator;
 
 import static jdk.internal.util.xml.XMLStreamWriter.DEFAULT_CHARSET;
 
@@ -91,45 +90,71 @@ public class HttpTaskServer {
             switch (method) {
                 case "GET":
                     if (query == null) {
-                        return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(localTaskMap));
+                        return requestGetAllTask(localTaskMap);
                     } else if (localTaskMap.containsKey(id)) {
-                        return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.getTask(id)));
+                        return requestGetSingleTask(id);
                     }
                     return new SingletonMap<>(ERROR_CODE, "Задачи с таким id нет");
                 case "DELETE":
                     if (query == null) {
-                        manager.clearTaskMap();
-                        return new SingletonMap<>(SUCCESSFUL_CODE, "Список задач очищен");
+                        return requestDeleteAllTask();
                     } else if (localTaskMap.containsKey(id)) {
-                        manager.deteteTask(id);
-                        return new SingletonMap<>(SUCCESSFUL_CODE, "Задача с id = " + id + " удалена");
+                        return requestDeleteSingleTask(id);
                     }
-                    return new SingletonMap<>(ERROR_CODE, "Задачи с таким id нет");
+                    return new SingletonMap<>(ERROR_CODE, "Удаление не удалось");
                 case "POST":
                     if (query != null && localTaskMap.containsKey(id)) {
-                        int indStatusInQuery = query.lastIndexOf("=") + 1;
-                        TaskStatus taskStatus = TaskStatus.valueOf(query.substring(indStatusInQuery).toUpperCase());
-                        manager.updateTaskStatus(id, taskStatus);
-                        return new SingletonMap<>(SUCCESSFUL_CODE, "Обновление статуса задачи id = " + id + " выполнено");
+                        return requestUpdateTaskStatus(query, id);
                     } else if (id < 0 && !body.isEmpty() ) {
-                        JsonElement jsonElement = JsonParser.parseString(body);                                             //////удалить эту херь
-                        UnaryOperator<JsonElement> jsObjConverter = (js) -> js.getAsJsonObject().get("taskType");
-                        AbstractTask task = ManagerUtil.taskTypeChecker(jsObjConverter, jsonElement);
-                        if (task instanceof Subtask) {
-                            if (!ManagerUtil.existingEpicForSubtask(manager.getAllTask(), task)) {
-                                return new SingletonMap<>(ERROR_CODE, "Сначала добавьте эпик");
-                            }
-                        } else if (task == null) {
-                            return new SingletonMap<>(ERROR_CODE, "Сначала добавьте эпик");
-                        }
-                        manager.add(task);
-                        return new SingletonMap<>(CREATED_CODE, "Новая задача добавлена");
+                        return requestAddNewTask(body, localTaskMap);
                     }
                     return new SingletonMap<>(ERROR_CODE, "Обновить список задач не получилось");
                 default:
                     return new SingletonMap<>(ERROR_CODE, "Неизвестный запрос");
             }
         }
+
+        private SingletonMap<Integer, String> requestAddNewTask(String body, Map<Integer,AbstractTask> localTaskMap)
+                throws ManagerSaveException, AddEmptyElementException, ExceptionTaskIntersection {
+            JsonElement jsonTask = JsonParser.parseString(body);
+            AbstractTask task = ManagerUtil.taskTypeChecker(jsonTask);
+            if (task instanceof Subtask && !ManagerUtil.existingEpicForSubtask(localTaskMap, task)) {
+                return new SingletonMap<>(ERROR_CODE, "Сначала добавьте эпик");
+            } else if (task == null) {
+                return new SingletonMap<>(ERROR_CODE, "Неизвестный тип задач");
+            }
+            manager.add(task);
+            return new SingletonMap<>(CREATED_CODE, "Новая задача добавлена");
+        }
+
+        private SingletonMap<Integer, String> requestUpdateTaskStatus(String query, int id) throws ManagerSaveException {
+            int indxStatusInQuery = query.lastIndexOf("=") + 1;
+            TaskStatus taskStatus = TaskStatus.valueOf(query.substring(indxStatusInQuery).toUpperCase());
+            manager.updateTaskStatus(id, taskStatus);
+            return new SingletonMap<>(SUCCESSFUL_CODE, "Обновление статуса задачи id = " + id + " выполнено");
+        }
+
+        private SingletonMap<Integer, String> requestDeleteSingleTask(int id) throws IOException, ManagerSaveException {
+            manager.deteteTask(id);
+            return new SingletonMap<>(SUCCESSFUL_CODE, "Задача с id = " + id + " удалена");
+        }
+
+        private SingletonMap<Integer, String> requestDeleteAllTask() {
+            manager.clearTaskMap();
+            return new SingletonMap<>(SUCCESSFUL_CODE, "Список задач очищен");
+        }
+
+        private SingletonMap<Integer, String> requestGetSingleTask(int id) throws Exception {
+            return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.getTask(id)));
+        }
+
+        private SingletonMap<Integer, String> requestGetAllTask(Map<Integer,AbstractTask> localTaskMap) {
+                if (localTaskMap.isEmpty()) {
+                    return new SingletonMap<>(SUCCESSFUL_CODE, "Список задач пуст");
+                }
+                return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(localTaskMap));
+        }
+
 
         private SingletonMap<Integer, String> historyMethod(String method) {
             if (method.equals("GET")) {

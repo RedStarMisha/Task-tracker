@@ -28,7 +28,6 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
 
     public FileBacketTaskManager(String newPath) throws Exception {
         super();
-            //path = Path.of(newPath);  надо исправить
         fileRecoveryFromPath(newPath);
 
     }

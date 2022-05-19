@@ -4,11 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 public class ManagerUtil {
     private static Gson gson = new Gson();
@@ -38,25 +35,25 @@ public class ManagerUtil {
 
     public static Map<Integer, AbstractTask> convertToTaskMap(String body) {
         Map<Integer, AbstractTask> map = new HashMap<>();
-        JsonElement jsonElement = JsonParser.parseString(body);
-        UnaryOperator<JsonElement> jsObjConverter = (js) -> js.getAsJsonObject().get("taskType");
-        JsonObject jsonObject = jsonElement.getAsJsonObject();
-        jsonObject.keySet().stream()
-                .map(str -> jsonObject.get(str))
-                .map(jEl -> taskTypeChecker(jsObjConverter, jEl))
+        JsonElement jsonElementTaskMap = JsonParser.parseString(body);
+        JsonObject jsonObjectTaskMap = jsonElementTaskMap.getAsJsonObject();
+        jsonObjectTaskMap.keySet().stream()
+                .map(str -> jsonObjectTaskMap.get(str))
+                .map(jEl -> taskTypeChecker(jEl))
                 .forEach(task -> map.put(task.getTaskId(), task));
         return map;
     }
 
-    public static AbstractTask taskTypeChecker(UnaryOperator<JsonElement> f, JsonElement jsonElement) {
-        String taskType = f.apply(jsonElement).getAsString();
+    public static AbstractTask taskTypeChecker(JsonElement singleJsonElement) {
+        JsonObject jsonObjectTask = singleJsonElement.getAsJsonObject();
+        String taskType = jsonObjectTask.get("taskType").getAsString();
         switch (taskType){
             case "TASK":
-                return  gson.fromJson(jsonElement, Task.class);
+                return  gson.fromJson(singleJsonElement, Task.class);
             case "EPICTASK":
-                return gson.fromJson(jsonElement, Epictask.class);
+                return gson.fromJson(singleJsonElement, Epictask.class);
             case "SUBTASK":
-                return gson.fromJson(jsonElement, Subtask.class);
+                return gson.fromJson(singleJsonElement, Subtask.class);
             default:
                 return null;
         }

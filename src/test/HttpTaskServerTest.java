@@ -140,6 +140,14 @@ class HttpTaskServerTest {
                 .build();
     }
 
+    private HttpRequest deleteAllTask() {
+        URI uri = URI.create(link + "/task");
+        return HttpRequest.newBuilder()
+                .DELETE()
+                .uri(uri)
+                .build();
+    }
+
     @Test
     void shouldAddNewSimpleTaskWhenSendPost() throws IOException, InterruptedException {
         response = client.send(addNewTask(simpleTask), HttpResponse.BodyHandlers.ofString());
@@ -151,11 +159,11 @@ class HttpTaskServerTest {
     void shouldThrowErrorWhenAddSubtaskBeforeEpic() throws IOException, InterruptedException {
         response = client.send(addNewTask(subTask), HttpResponse.BodyHandlers.ofString());
         assertEquals(400, response.statusCode());
-        assertEquals("Эпик не существует", response.body());
+        assertEquals("Сначала добавьте эпик", response.body());
     }
 
     @Test
-    void shouldThrowErrorWhenAddEmptyTask() throws IOException, InterruptedException {
+    void shouldThrowErrorWhenAddTaskWithEmptyBody() throws IOException, InterruptedException {
         response = client.send(addNewTask(""), HttpResponse.BodyHandlers.ofString());
         assertEquals(400, response.statusCode());
         assertEquals("Обновить список задач не получилось", response.body());
@@ -200,6 +208,13 @@ class HttpTaskServerTest {
     }
 
     @Test
+    void shouldGetAllTaskWithEmptyTaskMap() throws IOException, InterruptedException {
+        response = client.send(getAllTask(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
+        assertEquals("Список задач пуст", response.body());
+    }
+
+    @Test
     void shouldDeleteTask() throws IOException, InterruptedException {
         response = client.send(addNewTask(simpleTask), HttpResponse.BodyHandlers.ofString());
         response = client.send(deleteTask("1"), HttpResponse.BodyHandlers.ofString());
@@ -212,10 +227,21 @@ class HttpTaskServerTest {
     void shouldDeleteTaskWithNonExistentId() throws IOException, InterruptedException {
         response = client.send(deleteTask("1"), HttpResponse.BodyHandlers.ofString());
         assertEquals(400, response.statusCode());
-        assertEquals("Задачи с таким id нет", response.body());
+        assertEquals("Удаление не удалось", response.body());
         response = client.send(deleteTask("-1"), HttpResponse.BodyHandlers.ofString());
         assertEquals(400, response.statusCode());
-        assertEquals("Задачи с таким id нет", response.body());
+        assertEquals("Удаление не удалось", response.body());
+    }
+
+    @Test
+    void shouldDeleteAllTask() throws IOException, InterruptedException {
+        response = client.send(addNewTask(simpleTask), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(epicTask), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(subTask), HttpResponse.BodyHandlers.ofString());
+        response = client.send(deleteAllTask(), HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
+        assertEquals("Список задач очищен", response.body());
+        response = client.send(getAllTask(), HttpResponse.BodyHandlers.ofString());
     }
 
     @Test
@@ -232,6 +258,7 @@ class HttpTaskServerTest {
         assertEquals(400, response.statusCode());
         assertEquals("Обновить список задач не получилось", response.body());
     }
+
 
 
 

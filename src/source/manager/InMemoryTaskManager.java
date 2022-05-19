@@ -13,20 +13,9 @@ public class InMemoryTaskManager implements TaskManager {
      * TreeSet был использован как тип т.к. в методе поиска пересечений использовались методы lower и higher
      * если нужно именно перейти на более высокий уровень абстракции, то я тогда все переделаю. Пока оставил так
      */
-    private TreeSet<AbstractTask> sortedTask = new TreeSet<>((o1, o2) -> {
-        if (o1 == null) return 1;
-        if (o2 == null) return -1;
-        if (o1.getStartTime() == null && o2.getStartTime() == null) {
-            return o1.getTaskId() - o2.getTaskId();
-        } else if (o2.getStartTime() == null) {
-            return -1;
-        } else if (o1.getStartTime() == null) {
-            return 1;
-        } else if (Duration.between(o1.getStartTime(),o2.getStartTime()).toMinutes() == 0) {
-            return o1.getTaskId() - o2.getTaskId();
-        }
-        return (int)Duration.between(o1.getStartTime(),o2.getStartTime()).toMinutes();
-    });
+    private TreeSet<AbstractTask> sortedTask = new TreeSet<>((o1, o2) ->
+        Comparator.comparing(AbstractTask::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
+        .thenComparing(AbstractTask::getTaskId).compare(o1, o2));
 
     public HistoryManager getHistoryManager() {
         return historyManager;
