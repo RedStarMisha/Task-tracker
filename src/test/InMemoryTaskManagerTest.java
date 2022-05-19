@@ -87,9 +87,15 @@ public class InMemoryTaskManagerTest extends TaskManagerTest {
     }
 
     @Override @Test
-    void shouldDeleteSubtaskWhenDeleteEpicInHistoryManager() throws Exception {
+    void shouldDeleteSubtaskWhenDeleteEpicFromHistoryManager() throws Exception {
         createAndAddThreeTaskWithoutDate();
-        super.shouldDeleteSubtaskWhenDeleteEpicInHistoryManager();
+        super.shouldDeleteSubtaskWhenDeleteEpicFromHistoryManager();
+    }
+
+    @Override @Test
+    void shouldDeleteSubtaskIdFromEpicSubtaskIdListWhenDeleteSubtask() throws Exception {
+        createAndAddThreeTaskWithoutDate();
+        super.shouldDeleteSubtaskIdFromEpicSubtaskIdListWhenDeleteSubtask();
     }
 
     @Test @Override

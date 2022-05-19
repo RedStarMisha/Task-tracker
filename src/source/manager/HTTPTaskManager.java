@@ -31,13 +31,13 @@ public class HTTPTaskManager extends FileBacketTaskManager{
                     JsonObject jsonObject = jsonElement.getAsJsonObject();
                     jsonObject.keySet().stream()
                             .map(str -> jsonObject.get(str))
-                            .map(jEl -> taskTypeChecker(jsObjConverter, jEl))
+                            .map(jEl -> ManagerUtil.taskTypeChecker(jsObjConverter, jEl))
                             .forEach(task -> taskMap.put(task.getTaskId(), task));
                     break;
                 case HISTORY_KEY:
                     JsonArray jsonArray = jsonElement.getAsJsonArray();
                     IntStream.range(0, jsonArray.size()).mapToObj(i -> jsonArray.get(i))
-                            .map(ob -> taskTypeChecker(jsObjConverter, ob))
+                            .map(ob -> ManagerUtil.taskTypeChecker(jsObjConverter, ob))
                             .forEach(task -> getHistoryManager().addTask(task));
                     break;
             }
@@ -51,20 +51,4 @@ public class HTTPTaskManager extends FileBacketTaskManager{
         String hist = gson.toJson(history());
         kvTaskClient.put(HISTORY_KEY, hist);
     }
-
-    private AbstractTask taskTypeChecker(UnaryOperator<JsonElement> f, JsonElement jsonElement) {
-        String taskType = f.apply(jsonElement).getAsString();
-        switch (taskType){
-            case "TASK":
-                return  gson.fromJson(jsonElement, Task.class);
-            case "EPIC":
-                return gson.fromJson(jsonElement, Epictask.class);
-            case "SUBTASK":
-                return gson.fromJson(jsonElement, Subtask.class);
-            default:
-                return null;
-        }
-    }
-
-
 }

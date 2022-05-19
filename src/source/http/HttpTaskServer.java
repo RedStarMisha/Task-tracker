@@ -1,6 +1,5 @@
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -12,20 +11,20 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import static jdk.internal.util.xml.XMLStreamWriter.DEFAULT_CHARSET;
 
 public class HttpTaskServer {
 
     private static final int PORT = 8078;
-    //private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private final int SUCCESSFUL_CODE = 200;
+    private final int CREATED_CODE = 201;
     private final int ERROR_CODE = 400;
     private static Gson gson = new Gson();
     public TaskManager manager;
     String path;
+    private HttpServer httpServer;
     Charset windows1251 = Charset.forName("Windows-1251");
 
     public HttpTaskServer(String path) throws Exception {
@@ -37,14 +36,16 @@ public class HttpTaskServer {
 
 
     public void createServer() throws Exception {
-        HttpServer httpServer = HttpServer.create();
+        httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks", new TaskHandler());
         httpServer.start();
-
-
-
         System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
+    }
+
+    public void stop() {
+        System.out.println("Сервер остановлен");
+        httpServer.stop(0);
     }
 
     class TaskHandler implements HttpHandler {
@@ -89,47 +90,45 @@ public class HttpTaskServer {
             Map<Integer, AbstractTask> localTaskMap = manager.getAllTask();
             switch (method) {
                 case "GET":
-                    if (id < 0) {
+                    if (query == null) {
                         return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(localTaskMap));
+                    } else if (localTaskMap.containsKey(id)) {
+                        return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.getTask(id)));
                     }
-                    return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.getTask(id)));
+                    return new SingletonMap<>(ERROR_CODE, "Задачи с таким id нет");
                 case "DELETE":
-                    if (id < 0) {
+                    if (query == null) {
                         manager.clearTaskMap();
                         return new SingletonMap<>(SUCCESSFUL_CODE, "Список задач очищен");
+                    } else if (localTaskMap.containsKey(id)) {
+                        manager.deteteTask(id);
+                        return new SingletonMap<>(SUCCESSFUL_CODE, "Задача с id = " + id + " удалена");
                     }
-                    manager.deteteTask(id);
-                    return new SingletonMap<>(SUCCESSFUL_CODE, "Задача с id = " + id + " удалена");
+                    return new SingletonMap<>(ERROR_CODE, "Задачи с таким id нет");
                 case "POST":
-                    if (body.isEmpty() && query.indexOf("status") > 0 && localTaskMap.containsKey(id)) {
-                        TaskStatus taskStatus = TaskStatus.valueOf(query.substring(7).toUpperCase());
+                    if (query != null && localTaskMap.containsKey(id)) {
+                        int indStatusInQuery = query.lastIndexOf("=") + 1;
+                        TaskStatus taskStatus = TaskStatus.valueOf(query.substring(indStatusInQuery).toUpperCase());
                         manager.updateTaskStatus(id, taskStatus);
-                        return new SingletonMap<>(SUCCESSFUL_CODE, "Обновление статуса задачи "
-                                + localTaskMap.get(id).getTaskName() + " id " + id + " выполнено");
-                    } else if (id < 0) {
-                        Class className = Class.forName(taskTypeParser(body));
-                        if (className.equals(Subtask.class)) {
-                            Subtask subtask = (Subtask) gson.fromJson(body, className);
-                            Predicate<Map<Integer, AbstractTask>> containsId = map ->
-                                map.containsKey(subtask.getEpicTaskId());
-                            if (!containsId.test(manager.getAllTask())) {
-                                return new SingletonMap<>(ERROR_CODE, "Новая задача добавлена");
+                        return new SingletonMap<>(SUCCESSFUL_CODE, "Обновление статуса задачи id = " + id + " выполнено");
+                    } else if (id < 0 && !body.isEmpty() ) {
+                        JsonElement jsonElement = JsonParser.parseString(body);                                             //////удалить эту херь
+                        UnaryOperator<JsonElement> jsObjConverter = (js) -> js.getAsJsonObject().get("taskType");
+                        AbstractTask task = ManagerUtil.taskTypeChecker(jsObjConverter, jsonElement);
+                        if (task instanceof Subtask) {
+                            if (!ManagerUtil.existingEpicForSubtask(manager.getAllTask(), task)) {
+                                return new SingletonMap<>(ERROR_CODE, "Сначала добавьте эпик");
                             }
+                        } else if (task == null) {
+                            return new SingletonMap<>(ERROR_CODE, "Сначала добавьте эпик");
                         }
-                        AbstractTask task = (AbstractTask) gson.fromJson(body, className);
                         manager.add(task);
-                        return new SingletonMap<>(SUCCESSFUL_CODE, "Новая задача добавлена");
+                        return new SingletonMap<>(CREATED_CODE, "Новая задача добавлена");
                     }
                     return new SingletonMap<>(ERROR_CODE, "Обновить список задач не получилось");
                 default:
                     return new SingletonMap<>(ERROR_CODE, "Неизвестный запрос");
             }
-        }
-
-        private String taskTypeParser(String body) {
-            JsonElement jsonElement = JsonParser.parseString(body);
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            return Formater.firstLettertoUpperCase(jsonObject.get("taskType").getAsString());
         }
 
         private SingletonMap<Integer, String> historyMethod(String method) {

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -161,12 +163,24 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void shouldDeleteSubtaskWhenDeleteEpicInHistoryManager() throws Exception {
+    void shouldDeleteSubtaskWhenDeleteEpicFromHistoryManager() throws Exception {
         taskManager.getTask(1);
         taskManager.getTask(2);
         taskManager.getTask(3);
         taskManager.deteteTask(2);
         assertEquals(1,taskManager.history().size());
+    }
+
+    @Test
+    void shouldDeleteSubtaskIdFromEpicSubtaskIdListWhenDeleteSubtask() throws Exception {
+        int subId = 3;
+        Function<Integer, AbstractTask> taskReturn = (ind) -> taskManager.getAllTask().get(ind);
+        Subtask subtask = (Subtask) taskReturn.apply(subId);
+        Epictask epictask = (Epictask) taskReturn.apply(subtask.getEpicTaskId());
+        taskManager.deteteTask(subId);
+        assertFalse(epictask.getSubTaskListId().contains(subId));
+
+
     }
 
     @Test

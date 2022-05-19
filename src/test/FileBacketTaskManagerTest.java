@@ -110,9 +110,9 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
     }
 
     @Override @Test
-    void shouldDeleteSubtaskWhenDeleteEpicInHistoryManager() throws Exception {
+    void shouldDeleteSubtaskWhenDeleteEpicFromHistoryManager() throws Exception {
         createAndAddThreeTaskWithoutDate();
-        super.shouldDeleteSubtaskWhenDeleteEpicInHistoryManager();
+        super.shouldDeleteSubtaskWhenDeleteEpicFromHistoryManager();
     }
 
     @Test

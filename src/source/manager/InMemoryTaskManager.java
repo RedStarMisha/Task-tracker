@@ -151,10 +151,14 @@ public class InMemoryTaskManager implements TaskManager {
         Consumer<Integer> stepToRemove = (taskId) -> {
             taskMap.remove(taskId);
             historyManager.remove(taskId);
-            TaskSorter.remove(sortedTask,taskMap.get(taskId));
+            TaskSorter.remove(sortedTask, taskMap.get(taskId));
         };
         if (taskMap.get(id) instanceof Epictask) {
             ((Epictask) taskMap.get(id)).getSubTaskListId().stream().forEach(stepToRemove);
+        } else if (taskMap.get(id) instanceof Subtask) {
+            Subtask subtask = (Subtask) taskMap.get(id);
+            Epictask epictask = (Epictask) taskMap.get(subtask.getEpicTaskId());
+            epictask.getSubTaskListId().remove(Integer.valueOf(id));
         }
         stepToRemove.accept(id);
     }
