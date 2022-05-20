@@ -9,7 +9,8 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
 
     @BeforeEach
     void createTaskManager() throws Exception {
-        taskManager = Managers.getFileManager();
+        taskManager = Managers.getSerialisableTaskManager(System.getProperty("user.home")
+                + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
     }
 
     @Override
@@ -70,14 +71,14 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
     @Override
     @Test
     void shouldGetAllTask() throws Exception {
-        taskManager = Managers.getFileManagerWithoutRecovery();
+        taskManager = Managers.getSerialisableTaskManagerWithoutRecovery();
         super.createAndAddThreeTaskWithoutDate();
         super.shouldGetAllTask();
     }
 
     @Override @Test
     void shouldGetAllTaskForEmptyTaskMap() throws Exception {
-        taskManager = Managers.getFileManagerWithoutRecovery();
+        taskManager = Managers.getSerialisableTaskManagerWithoutRecovery();
         super.shouldGetAllTaskForEmptyTaskMap();
     }
 

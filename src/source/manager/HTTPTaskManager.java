@@ -10,10 +10,10 @@ public class HTTPTaskManager extends FileBacketTaskManager{
     public final static String HISTORY_KEY = "history";
 
 
-    public HTTPTaskManager(String path, Gson gson) throws Exception {
+    public HTTPTaskManager(String path) throws Exception {
         super(null);
+        this.gson = HttpTaskServer.gson;
         kvTaskClient = new KVTaskClient(path, gson);
-        this.gson = gson;
         if (RECOVERY) {
             loadData(TASKMAP_KEY);
             loadData(HISTORY_KEY);

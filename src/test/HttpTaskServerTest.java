@@ -1,4 +1,5 @@
 import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 import org.junit.jupiter.api.AfterEach;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -9,8 +10,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,10 +23,9 @@ class HttpTaskServerTest {
     KVServer kvServer = new KVServer();
     String link = "http://localhost:8078/tasks";
     HttpClient client;
-    HttpRequest request;
     HttpResponse<String> response;
     private String simpleTask = "{\n" +
-            "\t\"taskName\":\"задача\",\n" +
+            "\t\"taskName\":\"задача SimpleTask\",\n" +
             "\t\t\"taskDescription\":\"описание\",\n" +
             "\t\t\"taskId\":1,\n" +
             "\t\t\"taskStatus\":\"NEW\",\n" +
@@ -34,14 +36,10 @@ class HttpTaskServerTest {
             "\t\t\"startTime\":{\n" +
             "\t\t\t\"date\":{\"year\":2022,\"month\":1,\"day\":12},\n" +
             "\t\t  \"time\":{\"hour\":16,\"minute\":0,\"second\":0,\"nano\":0}\n" +
-            "\t\t},\n" +
-            "\t\t\t\"endTime\":{\n" +
-            "\t\t\t\t\t\t\t\"date\":{\"year\":2022,\"month\":1,\"day\":12},\n" +
-            "\t\t          \"time\":{\"hour\":16,\"minute\":10,\"second\":0,\"nano\":0}\n" +
-            "\t\t  }\n" +
+            "\t\t}\n" +
             "}";
     private String epicTask = "{\n" +
-            "\t\"taskName\":\"задача\",\n" +
+            "\t\"taskName\":\"задача EpicTask\",\n" +
             "\t\t\"taskDescription\":\"описание\",\n" +
             "\t\t\"taskId\":2,\n" +
             "\t\t\"taskStatus\":\"NEW\",\n" +
@@ -53,15 +51,12 @@ class HttpTaskServerTest {
             "\t\t\t\"date\":{\"year\":2022,\"month\":1,\"day\":12},\n" +
             "\t\t  \"time\":{\"hour\":16,\"minute\":0,\"second\":0,\"nano\":0}\n" +
             "\t\t},\n" +
-            "\t\t\t\"endTime\":{\n" +
-            "\t\t\t\t\t\t\t\"date\":{\"year\":2022,\"month\":1,\"day\":12},\n" +
-            "\t\t          \"time\":{\"hour\":16,\"minute\":10,\"second\":0,\"nano\":0}\n" +
-            "\t\t  },\n" +
             "\t\"subTaskListId\":[]\n" +
             "\t\n" +
             "}";
-    private String subTask = "{\n" +
-            "\t\"taskName\":\"задача\",\n" +
+
+    private String subTask1 = "{\n" +
+            "\t\"taskName\":\"задача Subtask1\",\n" +
             "\t\t\"taskDescription\":\"описание\",\n" +
             "\t\t\"taskId\":3,\n" +
             "\t\t\"taskStatus\":\"NEW\",\n" +
@@ -70,13 +65,24 @@ class HttpTaskServerTest {
             "\t\t\t\t\t\t\t\t\"seconds\":600,\n" +
             "\t\t\t\t\t\t\t\t\"nanos\":0},\n" +
             "\t\t\"startTime\":{\n" +
-            "\t\t\t\"date\":{\"year\":2022,\"month\":1,\"day\":12},\n" +
+            "\t\t\t\"date\":{\"year\":2022,\"month\":1,\"day\":11},\n" +
             "\t\t  \"time\":{\"hour\":16,\"minute\":0,\"second\":0,\"nano\":0}\n" +
             "\t\t},\n" +
-            "\t\t\t\"endTime\":{\n" +
-            "\t\t\t\t\t\t\t\"date\":{\"year\":2022,\"month\":1,\"day\":12},\n" +
-            "\t\t          \"time\":{\"hour\":16,\"minute\":10,\"second\":0,\"nano\":0}\n" +
-            "\t\t  },\n" +
+            "\t\"epicTaskId\": 2\n" +
+            "}";
+    private String subTask2 = "{\n" +
+            "\t\"taskName\":\"задача Subtask2\",\n" +
+            "\t\t\"taskDescription\":\"описание\",\n" +
+            "\t\t\"taskId\":4,\n" +
+            "\t\t\"taskStatus\":\"NEW\",\n" +
+            "\t\t\"taskType\":\"SUBTASK\",\n" +
+            "\t\t\"duration\":{\n" +
+            "\t\t\t\t\t\t\t\t\"seconds\":600,\n" +
+            "\t\t\t\t\t\t\t\t\"nanos\":0},\n" +
+            "\t\t\"startTime\":{\n" +
+            "\t\t\t\"date\":{\"year\":2022,\"month\":1,\"day\":15},\n" +
+            "\t\t  \"time\":{\"hour\":16,\"minute\":0,\"second\":0,\"nano\":0}\n" +
+            "\t\t},\n" +
             "\t\"epicTaskId\": 2\n" +
             "}";
 
@@ -148,6 +154,15 @@ class HttpTaskServerTest {
                 .build();
     }
 
+    private HttpRequest getSortedSet() {
+        URI uri = URI.create(link);
+        return HttpRequest.newBuilder()
+                .GET()
+                .uri(uri)
+                .build();
+    }
+
+
     @Test
     void shouldAddNewSimpleTaskWhenSendPost() throws IOException, InterruptedException {
         response = client.send(addNewTask(simpleTask), HttpResponse.BodyHandlers.ofString());
@@ -157,7 +172,7 @@ class HttpTaskServerTest {
 
     @Test
     void shouldThrowErrorWhenAddSubtaskBeforeEpic() throws IOException, InterruptedException {
-        response = client.send(addNewTask(subTask), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(subTask1), HttpResponse.BodyHandlers.ofString());
         assertEquals(400, response.statusCode());
         assertEquals("Сначала добавьте эпик", response.body());
     }
@@ -196,11 +211,11 @@ class HttpTaskServerTest {
     @Test
     void shouldGetAllTask() throws IOException, InterruptedException {
         response = client.send(addNewTask(epicTask), HttpResponse.BodyHandlers.ofString());
-        response = client.send(addNewTask(subTask), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(subTask1), HttpResponse.BodyHandlers.ofString());
         response = client.send(getAllTask(), HttpResponse.BodyHandlers.ofString());
         Map<Integer, AbstractTask> returnedMap = ManagerUtil.convertToTaskMap(response.body());
         Epictask epictask = gson.fromJson(epicTask, Epictask.class);
-        Subtask subtask = gson.fromJson(subTask, Subtask.class);
+        Subtask subtask = gson.fromJson(subTask1, Subtask.class);
         Map<Integer, AbstractTask> localMap = new HashMap<>();
         localMap.put(2, epictask);
         localMap.put(3, subtask);
@@ -237,7 +252,7 @@ class HttpTaskServerTest {
     void shouldDeleteAllTask() throws IOException, InterruptedException {
         response = client.send(addNewTask(simpleTask), HttpResponse.BodyHandlers.ofString());
         response = client.send(addNewTask(epicTask), HttpResponse.BodyHandlers.ofString());
-        response = client.send(addNewTask(subTask), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(subTask1), HttpResponse.BodyHandlers.ofString());
         response = client.send(deleteAllTask(), HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode());
         assertEquals("Список задач очищен", response.body());
@@ -259,38 +274,21 @@ class HttpTaskServerTest {
         assertEquals("Обновить список задач не получилось", response.body());
     }
 
-
-
-
-//    final HttpClient client = HttpClient.newBuilder()
-//            .version(HttpClient.Version.HTTP_1_1)
-//            .build();
-//
-//
-//    private String register(String link) throws IOException, InterruptedException {
-//        URI registrUri = URI.create(link + "/register");
-//        HttpRequest registerRequest = HttpRequest.newBuilder()
-//                .POST(HttpRequest.BodyPublishers.ofString())
-//                .uri(registrUri)
-//                .build();
-//        HttpResponse<String> response = client.send(registerRequest, HttpResponse.BodyHandlers.ofString());
-//        return response.body();
-//    }
-//
-//    public void put(String key, String data) throws Exception {
-//        URI postUri = URI.create(baseURI + "/save/" + key + "?API_TOKEN=" + token);
-//        System.out.println(postUri);
-//        HttpRequest requestForSave = HttpRequest.newBuilder()
-//                .POST(HttpRequest.BodyPublishers.ofString(data))
-//                .uri(postUri)
-//                .version(HttpClient.Version.HTTP_1_1)
-//                .build();
-//        HttpResponse<String> response = client.send(requestForSave , HttpResponse.BodyHandlers.ofString());
-//        System.out.println("HTTP код ответа: " + response.statusCode());
-//        System.out.println("Ответ в формате XML: " + response.body());
-//    }
-//
-//
-
-
+    @Test
+    void shouldGetSortedSetTask() throws IOException, InterruptedException {
+        TreeSet<AbstractTask> sortedTask = new TreeSet<>((o1, o2) ->
+                Comparator.comparing(AbstractTask::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(AbstractTask::getTaskId).compare(o1, o2));
+        response = client.send(addNewTask(simpleTask), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(epicTask), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(subTask1), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(subTask2), HttpResponse.BodyHandlers.ofString());
+        response = client.send(getSortedSet(), HttpResponse.BodyHandlers.ofString());
+        TaskSorter.add(sortedTask, ManagerUtil.taskTypeChecker(JsonParser.parseString(simpleTask)));
+        TaskSorter.add(sortedTask, ManagerUtil.taskTypeChecker(JsonParser.parseString(epicTask)));
+        TaskSorter.add(sortedTask, ManagerUtil.taskTypeChecker(JsonParser.parseString(subTask1)));
+        TaskSorter.add(sortedTask, ManagerUtil.taskTypeChecker(JsonParser.parseString(subTask2)));
+        assertEquals(200, response.statusCode());
+        assertEquals(gson.toJson(sortedTask), response.body());
+    }
 }

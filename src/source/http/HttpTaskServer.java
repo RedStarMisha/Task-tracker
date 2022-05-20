@@ -20,7 +20,7 @@ public class HttpTaskServer {
     private final int SUCCESSFUL_CODE = 200;
     private final int CREATED_CODE = 201;
     private final int ERROR_CODE = 400;
-    private static Gson gson = new Gson();
+    public static Gson gson = new Gson();
     public TaskManager manager;
     String path;
     private HttpServer httpServer;
@@ -29,7 +29,7 @@ public class HttpTaskServer {
     public HttpTaskServer(String path) throws Exception {
         this.path = path;
         HTTPTaskManager.RECOVERY = false;
-        manager = Managers.getHttpTaskManager(path, gson);
+        manager = Managers.getSerialisableTaskManager(path);
         HTTPTaskManager.RECOVERY = true;
     }
 
@@ -59,7 +59,7 @@ public class HttpTaskServer {
                 String[] subPath = httpExchange.getRequestURI().getPath().split("/");
 
                 if (subPath.length < 3 && method.equals("GET")) {
-                    respAndCode = new SingletonMap<>(SUCCESSFUL_CODE , manager.getSortedTask().toString());
+                    respAndCode = new SingletonMap<>(SUCCESSFUL_CODE , gson.toJson(manager.getSortedTask()));
                 }
                 switch (subPath[2]) {
                     case "load":
@@ -81,6 +81,18 @@ public class HttpTaskServer {
                 try (OutputStream os = httpExchange.getResponseBody()) {
                     os.write(respAndCode.getValue().getBytes(DEFAULT_CHARSET));
                 }
+            }
+        }
+
+        private SingletonMap<Integer, String> loadMethod(String method, String key) throws Exception {
+            if (key.equals(HTTPTaskManager.TASKMAP_KEY) && method.equals("GET")) {
+                manager = Managers.getSerialisableTaskManager(path);
+                return new SingletonMap<>(SUCCESSFUL_CODE, "Данные менеджера задач загружены с сервера");
+            } else if (key.equals(HTTPTaskManager.HISTORY_KEY) && method.equals("GET")) {
+                manager = Managers.getSerialisableTaskManager(path);
+                return new SingletonMap<>(SUCCESSFUL_CODE, "Данные менеджера задач загружены с сервера");
+            } else {
+                return new SingletonMap<>(ERROR_CODE, "Неизвестная команда");
             }
         }
 
@@ -163,16 +175,8 @@ public class HttpTaskServer {
             return new SingletonMap<>(ERROR_CODE, "Ошибка при отображении истории вызовов задач");
         }
 
-        private SingletonMap<Integer, String> loadMethod(String method, String key) throws Exception {
-                if (key.equals(HTTPTaskManager.TASKMAP_KEY) && method.equals("GET")) {
-                    manager = Managers.getHttpTaskManager(path, gson);
-                    return new SingletonMap<>(SUCCESSFUL_CODE, "Данные менеджера задач загружены с сервера");
-                } else if (key.equals(HTTPTaskManager.HISTORY_KEY) && method.equals("GET")) {
-                    manager = Managers.getHttpTaskManager(path, gson);
-                    return new SingletonMap<>(SUCCESSFUL_CODE, "Данные менеджера задач загружены с сервера");
-                } else {
-                    return new SingletonMap<>(ERROR_CODE, "Неизвестная команда");
-                }
+        private SingletonMap<Integer, String> sortedMethod() {
+            return new SingletonMap<>(SUCCESSFUL_CODE, gson.toJson(manager.getSortedTask()));
         }
     }
 }

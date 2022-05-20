@@ -12,7 +12,8 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
      * @param historyManager
      * @throws Exception
      */
-    Path path = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
+
+    private Path path = Path.of(System.getProperty("user.home") + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
 
 
 
@@ -28,8 +29,10 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
 
     public FileBacketTaskManager(String newPath) throws Exception {
         super();
-        fileRecoveryFromPath(newPath);
-
+        if (newPath != null) {
+            path = Path.of(newPath);
+            fileRecoveryFromPath(newPath);
+        }
     }
 
     /**

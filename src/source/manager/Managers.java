@@ -1,5 +1,3 @@
-import com.google.gson.Gson;
-
 public class Managers  {
 
     public static HistoryManager getDefaultHistory() {
@@ -10,16 +8,12 @@ public class Managers  {
         return new InMemoryTaskManager();
     }
 
-    public static TaskManager getHttpTaskManager(String path, Gson gson) throws Exception {
-        return new HTTPTaskManager(path, gson);
-    }
-
-    public static InMemoryTaskManager getFileManager() throws Exception {
+    public static TaskManager getSerialisableTaskManager(String path) throws Exception {
         FileBacketTaskManager.RECOVERY = true;
-        return new FileBacketTaskManager();
+        return new HTTPTaskManager(path);
     }
 
-    public static InMemoryTaskManager getFileManagerWithoutRecovery() throws Exception {
+    public static InMemoryTaskManager getSerialisableTaskManagerWithoutRecovery() throws Exception {
         FileBacketTaskManager.RECOVERY = false;
         return new FileBacketTaskManager();
     }

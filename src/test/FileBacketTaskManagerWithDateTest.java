@@ -7,7 +7,8 @@ public class FileBacketTaskManagerWithDateTest extends TaskManagerWithDateTest{
 
     @BeforeEach
     void createTaskManager() throws Exception {
-        taskManager = Managers.getFileManager();
+        taskManager = Managers.getSerialisableTaskManager(System.getProperty("user.home")
+                + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
     }
 
     @Override @Test
