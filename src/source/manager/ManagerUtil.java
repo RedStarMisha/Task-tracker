@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 public class ManagerUtil {
-    private static Gson gson = new Gson();
+    public final static Gson GSON = new Gson();
 
     public static boolean existingEpicForSubtask(Map<Integer, AbstractTask> map, AbstractTask subTask) {
         if (subTask instanceof Subtask) {
@@ -49,11 +49,11 @@ public class ManagerUtil {
         String taskType = jsonObjectTask.get("taskType").getAsString();
         switch (taskType){
             case "TASK":
-                return  gson.fromJson(singleJsonElement, Task.class);
+                return  GSON.fromJson(singleJsonElement, Task.class);
             case "EPICTASK":
-                return gson.fromJson(singleJsonElement, Epictask.class);
+                return GSON.fromJson(singleJsonElement, Epictask.class);
             case "SUBTASK":
-                return gson.fromJson(singleJsonElement, Subtask.class);
+                return GSON.fromJson(singleJsonElement, Subtask.class);
             default:
                 return null;
         }

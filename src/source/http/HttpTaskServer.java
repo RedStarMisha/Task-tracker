@@ -20,9 +20,9 @@ public class HttpTaskServer {
     private final int SUCCESSFUL_CODE = 200;
     private final int CREATED_CODE = 201;
     private final int ERROR_CODE = 400;
-    public static Gson gson = new Gson();
+    private Gson gson = ManagerUtil.GSON;
     public TaskManager manager;
-    String path;
+    private String path;
     private HttpServer httpServer;
     Charset windows1251 = Charset.forName("Windows-1251");
 
@@ -75,7 +75,7 @@ public class HttpTaskServer {
                         respAndCode = new SingletonMap<>(ERROR_CODE, "Действие не удалось");
                 }
             } catch (Exception e) {
-                System.out.println("Ошибка при обращении к серверу");
+                System.out.println("Ошибка при обращении к серверу: " + e.getMessage());
             } finally {
                 httpExchange.sendResponseHeaders(respAndCode.getKey(), 0);
                 try (OutputStream os = httpExchange.getResponseBody()) {

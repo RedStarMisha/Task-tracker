@@ -18,7 +18,7 @@ import java.util.TreeSet;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HttpTaskServerTest {
-    Gson gson = new Gson();
+    Gson gson = ManagerUtil.GSON;
     HttpTaskServer taskServer;
     KVServer kvServer = new KVServer();
     String link = "http://localhost:8078/tasks";
@@ -105,6 +105,14 @@ class HttpTaskServerTest {
         kvServer.stop();
 
     }
+
+    private void addFourTask() throws IOException, InterruptedException {
+        response = client.send(addNewTask(simpleTask), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(epicTask), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(subTask1), HttpResponse.BodyHandlers.ofString());
+        response = client.send(addNewTask(subTask2), HttpResponse.BodyHandlers.ofString());
+    }
+
 
     private HttpRequest addNewTask(String body) {
         URI uri = URI.create(link + "/task");
@@ -250,9 +258,7 @@ class HttpTaskServerTest {
 
     @Test
     void shouldDeleteAllTask() throws IOException, InterruptedException {
-        response = client.send(addNewTask(simpleTask), HttpResponse.BodyHandlers.ofString());
-        response = client.send(addNewTask(epicTask), HttpResponse.BodyHandlers.ofString());
-        response = client.send(addNewTask(subTask1), HttpResponse.BodyHandlers.ofString());
+        addFourTask();
         response = client.send(deleteAllTask(), HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode());
         assertEquals("Список задач очищен", response.body());
@@ -279,10 +285,7 @@ class HttpTaskServerTest {
         TreeSet<AbstractTask> sortedTask = new TreeSet<>((o1, o2) ->
                 Comparator.comparing(AbstractTask::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
                         .thenComparing(AbstractTask::getTaskId).compare(o1, o2));
-        response = client.send(addNewTask(simpleTask), HttpResponse.BodyHandlers.ofString());
-        response = client.send(addNewTask(epicTask), HttpResponse.BodyHandlers.ofString());
-        response = client.send(addNewTask(subTask1), HttpResponse.BodyHandlers.ofString());
-        response = client.send(addNewTask(subTask2), HttpResponse.BodyHandlers.ofString());
+        addFourTask();
         response = client.send(getSortedSet(), HttpResponse.BodyHandlers.ofString());
         TaskSorter.add(sortedTask, ManagerUtil.taskTypeChecker(JsonParser.parseString(simpleTask)));
         TaskSorter.add(sortedTask, ManagerUtil.taskTypeChecker(JsonParser.parseString(epicTask)));

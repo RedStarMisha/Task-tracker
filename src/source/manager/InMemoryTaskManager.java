@@ -138,9 +138,9 @@ public class InMemoryTaskManager implements TaskManager {
     public void deteteTask(int id) throws NoSuchElementException, ManagerSaveException {
         containsKeyFromTaskMap(id);
         Consumer<Integer> stepToRemove = (taskId) -> {
+            TaskSorter.remove(sortedTask, taskMap.get(taskId));
             taskMap.remove(taskId);
             historyManager.remove(taskId);
-            TaskSorter.remove(sortedTask, taskMap.get(taskId));
         };
         if (taskMap.get(id) instanceof Epictask) {
             ((Epictask) taskMap.get(id)).getSubTaskListId().stream().forEach(stepToRemove);

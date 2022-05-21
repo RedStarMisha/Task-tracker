@@ -1,5 +1,3 @@
-import com.google.gson.Gson;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -7,7 +5,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class KVTaskClient {
-    Gson gson;
     String baseURI;
     private final String token;
     final HttpClient client = HttpClient.newBuilder()
@@ -15,9 +12,8 @@ public class KVTaskClient {
             .build();
 
 
-    public KVTaskClient(String link, Gson gson) throws Exception {
+    public KVTaskClient(String link) throws Exception {
         baseURI = link;
-        this.gson = gson;
         token = register(link);
     }
 

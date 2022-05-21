@@ -12,8 +12,8 @@ public class HTTPTaskManager extends FileBacketTaskManager{
 
     public HTTPTaskManager(String path) throws Exception {
         super(null);
-        this.gson = HttpTaskServer.gson;
-        kvTaskClient = new KVTaskClient(path, gson);
+        this.gson = ManagerUtil.GSON;
+        kvTaskClient = new KVTaskClient(path);
         if (RECOVERY) {
             loadData(TASKMAP_KEY);
             loadData(HISTORY_KEY);

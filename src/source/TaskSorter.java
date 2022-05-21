@@ -13,6 +13,5 @@ public class TaskSorter {
         if (set.contains(task)) {
             set.remove(task);
         }
-        set.remove(task);
     }
 }

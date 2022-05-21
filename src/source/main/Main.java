@@ -7,7 +7,7 @@
 public class Main {
     static TaskManager manager;
 
-    public static void main(String[] args) throws ManagerSaveException, AddEmptyElementException {
+    public static void main(String[] args) {
         try {
             new KVServer().start();
             HttpTaskServer httpTaskServer = new HttpTaskServer("http://localhost:8080");
