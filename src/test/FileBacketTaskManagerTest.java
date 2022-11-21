@@ -9,7 +9,7 @@ public class FileBacketTaskManagerTest extends TaskManagerTest {
 
     @BeforeEach
     void createTaskManager() throws Exception {
-        taskManager = Managers.getSerialisableTaskManager(System.getProperty("user.home")
+        taskManager = Managers.getSerializableTaskManager(System.getProperty("user.home")
                 + "\\IdeaProjects\\java-sprint2-hw\\files\\back.txt");
     }
 

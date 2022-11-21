@@ -36,7 +36,7 @@ public class Restorer {
 
     /**
      * метод загрузки данных в хранилище запросов
-     * когда строка равна "requesthistory" маркер historyPartInFile меняется на true,
+     * когда строка равна "request history" маркер historyPartInFile меняется на true,
      * что означает, что след строка будет история запросов
      *
      * @param historyPart

@@ -8,7 +8,7 @@ public class Managers  {
         return new InMemoryTaskManager();
     }
 
-    public static TaskManager getSerialisableTaskManager(String path) throws Exception {
+    public static TaskManager getSerializableTaskManager(String path) throws Exception {
         FileBacketTaskManager.RECOVERY = true;
         return new HTTPTaskManager(path);
     }

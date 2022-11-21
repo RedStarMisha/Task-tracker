@@ -52,13 +52,12 @@ public class FileBacketTaskManager extends InMemoryTaskManager implements Saveab
         }
     }
 
-    protected void fileRecoveryFromPath(String path) throws ManagerSaveException, IOException {
-        if (path == null) {
+    protected void fileRecoveryFromPath(String pathStr) throws ManagerSaveException, IOException {
+        if (pathStr == null) {
             return;
-        } else if (!Files.exists(Path.of(path))) {
-            Files.createFile(Path.of(path));
         }
-        Restorer.dataLoader(Path.of(path), this);
+        Files.createFile(Path.of(pathStr));
+        Restorer.dataLoader(Path.of(pathStr), this);
     }
 
     @Override

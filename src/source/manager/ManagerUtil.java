@@ -18,14 +18,6 @@ public class ManagerUtil {
         return false;
     }
 
-    public static int epicIdOfSubtask (AbstractTask task) {
-        if (task instanceof Subtask) {
-            Subtask subtask = (Subtask) task;
-            return subtask.getEpicTaskId();
-        }
-        throw new NoSuchElementException("Задача не субтакс");
-    }
-
     public static Class<?> taskTypeParser(String body) throws ClassNotFoundException {
         JsonElement jsonElement = JsonParser.parseString(body);
         JsonObject jsonObject = jsonElement.getAsJsonObject();
